@@ -10,12 +10,12 @@ object Scadesh extends ProjectGroup("scadesh") {
 
     Compile / scalacOptions ++= Seq(
       "-encoding", "utf-8",
-      "-Werror"
+      "-Werror",
     ),
 
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % Version.Scalatest % Test
-    )
+      "org.scalatest" %% "scalatest" % Version.Scalatest % Test,
+    ),
   )
 
   final val CompileAndTest = "compile->compile;test->test"
@@ -23,7 +23,7 @@ object Scadesh extends ProjectGroup("scadesh") {
   lazy val root = mkRootProject
     .aggregate(core, server, client)
     .settings(
-      publish / skip := true
+      publish / skip := true,
     )
 
   lazy val core = mkSubProject
@@ -32,8 +32,8 @@ object Scadesh extends ProjectGroup("scadesh") {
     .dependsOn(core % CompileAndTest)
     .settings(
       libraryDependencies ++= Seq(
-        "org.scala-lang" %% "scala3-compiler" % Version.Scala
-      )
+        "org.scala-lang" %% "scala3-compiler" % Version.Scala,
+      ),
     )
 
   lazy val client = mkSubProject
