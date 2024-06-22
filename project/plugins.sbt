@@ -1,0 +1,5 @@
+addSbtPlugin("com.github.ghik" % "sbt-nosbt" % "0.2.1")
+addSbtPlugin("org.jetbrains.scala" % "sbt-ide-settings" % "1.1.2")
+addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.12")
+addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
+addSbtPlugin("com.github.sbt" % "sbt-github-actions" % "0.23.0")
