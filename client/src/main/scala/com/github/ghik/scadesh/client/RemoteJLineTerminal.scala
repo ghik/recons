@@ -86,8 +86,8 @@ class RemoteJLineTerminal(socket: Socket) extends Closeable {
             def wordCursor(): Int = parsedLine.wordCursor
             def line(): String = parsedLine.line
             def cursor(): Int = parsedLine.cursor
-            def wordIndex = -1
-            def words = java.util.Collections.emptyList[String]
+            def wordIndex: Int = -1
+            def words: JList[String] = java.util.Collections.emptyList[String]
           }
         case Left(Missing(missing)) =>
           throw new EOFError(

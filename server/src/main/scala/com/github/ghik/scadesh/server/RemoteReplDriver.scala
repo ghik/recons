@@ -104,7 +104,7 @@ class RemoteReplDriver private(
 
 
         // we need to enclose the last backtick, which unclosed produces ERROR token
-        if (token == ERROR && input(start) == '`') then
+        if token == ERROR && input(start) == '`' then
           lastBacktickErrorStart = Some(start)
         else
           lastBacktickErrorStart = None
