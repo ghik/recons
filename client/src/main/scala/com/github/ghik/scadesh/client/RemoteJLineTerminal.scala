@@ -29,7 +29,6 @@ class RemoteJLineTerminal(socket: Socket) extends Closeable {
         }
       case Command.Write(data) =>
         terminal.writer.write(new String(data, StandardCharsets.UTF_8))
-        terminal.writer.flush()
       case Command.Flush =>
         terminal.writer.flush()
       case _: CompilerCommand[?] =>
