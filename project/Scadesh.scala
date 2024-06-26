@@ -9,7 +9,8 @@ object Scadesh extends ProjectGroup("scadesh") {
   )
 
   override def commonSettings: Seq[Def.Setting[?]] = Seq(
-    scalaVersion := Version.Scala,
+    crossScalaVersions := Seq("2.13.14", "3.4.2"),
+    scalaVersion := crossScalaVersions.value.head,
     ideBasePackages := Seq("com.github.ghik.scadesh"),
 
     Compile / scalacOptions ++= Seq(
@@ -36,8 +37,6 @@ object Scadesh extends ProjectGroup("scadesh") {
       libraryDependencies ++= Seq(
         "org.jline" % "jline-terminal" % Version.JLine,
         "org.jline" % "jline-reader" % Version.JLine,
-        "io.bullet" %% "borer-core" % Version.Borer,
-        "io.bullet" %% "borer-derivation" % Version.Borer,
       ),
     )
 
@@ -45,7 +44,10 @@ object Scadesh extends ProjectGroup("scadesh") {
     .dependsOn(core % CompileAndTest)
     .settings(
       libraryDependencies ++= Seq(
-        "org.scala-lang" %% "scala3-compiler" % Version.Scala,
+        scalaBinaryVersion.value match {
+          case "2.13" => "org.scala-lang" % "scala-compiler" % scalaVersion.value
+          case "3" => "org.scala-lang" %% "scala3-compiler" % scalaVersion.value
+        },
       ),
 
       Test / resourceGenerators += Def.task {
@@ -62,8 +64,6 @@ object Scadesh extends ProjectGroup("scadesh") {
 }
 
 object Version {
-  final val Scala = "3.3.3"
   final val JLine = "3.19.0" // needs to be in sync with compiler dependency
-  final val Borer = "1.14.0"
   final val Scalatest = "3.2.18"
 }
