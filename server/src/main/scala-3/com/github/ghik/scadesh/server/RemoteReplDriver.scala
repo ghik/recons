@@ -1,7 +1,7 @@
 package com.github.ghik.scadesh
 package server
 
-import com.github.ghik.scadesh.core.{Command, ParsedLine, *}
+import com.github.ghik.scadesh.core.{ParsedLine, *}
 import dotty.tools.dotc.config.Properties.{javaVersion, javaVmName, simpleVersionString}
 import dotty.tools.dotc.core.Contexts.*
 import dotty.tools.dotc.parsing.Scanners.Scanner
@@ -20,15 +20,15 @@ import scala.annotation.tailrec
 
 class RemoteReplDriver private(
   settings: Array[String],
-  comm: Communicator,
+  comm: ServerCommunicator,
   out: PrintStream,
   classLoader: Option[ClassLoader],
 ) extends ReplDriver(settings, out, classLoader) { self =>
-  private def this(settings: Array[String], comm: Communicator, classLoader: Option[ClassLoader]) =
+  private def this(settings: Array[String], comm: ServerCommunicator, classLoader: Option[ClassLoader]) =
     this(settings, comm, new CommunicatorPrintStream(comm), classLoader)
 
   def this(settings: Array[String], socket: Socket, classLoader: Option[ClassLoader] = None) =
-    this(settings, new Communicator(socket), classLoader)
+    this(settings, new ServerCommunicator(socket), classLoader)
 
   // implementation copied from superclass, only with JLineTerminal replaced by RemoteTerminal
   override def runUntilQuit(using initialState: State)(): State = {
@@ -40,20 +40,18 @@ class RemoteReplDriver private(
     def readLine()(using state: State): ParseResult = {
       given Context = state.context
 
-      comm.setCommandHandler(new CommandHandler {
-        def handleCommand[T](cmd: Command[T]): T = cmd match {
-          case Command.Complete(cursor, line) =>
+      comm.setCommandHandler(new comm.CommandHandler {
+        def handleCommand[T](cmd: CompilerCommand[T]): T = cmd match {
+          case CompilerCommand.Complete(cursor, line) =>
             completions(cursor, line, state).map(_.value)
-          case Command.Highlight(line) =>
+          case CompilerCommand.Highlight(line) =>
             SyntaxHighlighting.highlight(line)
-          case Command.Parse(input, cursor, context) =>
+          case CompilerCommand.Parse(input, cursor, context) =>
             parse(input, cursor, context)
-          case _: TerminalCommand[?] =>
-            throw new IllegalArgumentException(s"Unsupported command: $cmd")
         }
       })
 
-      comm.sendCommand(Command.ReadLine)
+      comm.sendCommand(TerminalCommand.ReadLine)
         .map(ParseResult(_))
         .getOrElse(Quit)
     }

@@ -1,37 +1,38 @@
 package com.github.ghik.scadesh
 package core
 
-import java.io._
+import java.io.*
 import java.net.Socket
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
 
 class CommunicatorException(message: String) extends IOException(message)
 
-trait CommandHandler[Cmd[_]] {
-  def handleCommand[T](cmd: Cmd[T]): T
-}
-
 object Communicator {
   private val Request = 0: Byte
   private val Response = 1: Byte
   private val Exception = 2: Byte
 }
-final class Communicator[InCmd[T] <: Command[T], OutCmd[T] <: Command[T]](
-  socket: Socket,
-)(implicit
-  inCmdDecoder: Decoder[InCmd[?]],
-  outCmdEncoder: Encoder[OutCmd[?]],
-) extends Closeable {
+abstract class Communicator(socket: Socket) extends Closeable {
+  type InCmd[T] <: Command[T]
+  type OutCmd[T] <: Command[T]
+
+  protected implicit def inCmdDecoder[T]: Decoder[InCmd[T]]
+  protected implicit def outCmdEncoder[T]: Encoder[OutCmd[T]]
+
+  trait CommandHandler {
+    def handleCommand[T](cmd: InCmd[T]): T
+  }
+
   private val dout = new DataOutputStream(socket.getOutputStream)
   private val din = new DataInputStream(socket.getInputStream)
 
-  private var commandHandler = new CommandHandler[InCmd] {
+  private var commandHandler = new CommandHandler {
     def handleCommand[T](cmd: InCmd[T]): T =
       throw new UnsupportedOperationException("No command handler set")
   }
 
-  def setCommandHandler(handler: CommandHandler[InCmd]): Unit =
+  def setCommandHandler(handler: CommandHandler): Unit =
     commandHandler = handler
 
   private def writeData[T: Encoder](tpe: Byte, data: T): Unit = {
@@ -59,7 +60,8 @@ final class Communicator[InCmd[T] <: Command[T], OutCmd[T] <: Command[T]](
   @tailrec private def receive[T: Decoder](): T =
     din.readByte() match {
       case Communicator.Request =>
-        doHandleCommand(Decoder.decode[InCmd[?]](din))
+        val cmd = Decoder.decode[InCmd[T]]
+        doHandleCommand(cmd(din))
         receive[T]()
 
       case Communicator.Response =>
@@ -70,8 +72,8 @@ final class Communicator[InCmd[T] <: Command[T], OutCmd[T] <: Command[T]](
     }
 
   def sendCommand[T](cmd: OutCmd[T]): T = {
-    writeData[OutCmd[?]](Communicator.Request, cmd)
-    receive[T]()(cmd.responseDecoder)
+    writeData(Communicator.Request, cmd)
+    receive()(cmd.responseDecoder)
   }
 
   def close(): Unit =

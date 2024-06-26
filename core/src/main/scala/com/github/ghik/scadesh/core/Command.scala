@@ -18,7 +18,7 @@ object TerminalCommand {
   case object Flush
     extends TerminalCommand[Unit]
 
-  implicit val encoder: Encoder[TerminalCommand[_]] = {
+  implicit def encoder[T]: Encoder[TerminalCommand[T]] = {
     case (out, ReadLine) =>
       out.writeByte(0)
     case (out, Write(data)) =>
@@ -28,11 +28,11 @@ object TerminalCommand {
       out.writeByte(2)
   }
 
-  implicit val decoder: Decoder[TerminalCommand[_]] =
+  implicit def decoder[T]: Decoder[TerminalCommand[T]] =
     in => in.readByte() match {
-      case 0 => ReadLine
-      case 1 => Write(Decoder[Array[Byte]].decode(in))
-      case 2 => Flush
+      case 0 => ReadLine.asInstanceOf[TerminalCommand[T]]
+      case 1 => Write(Decoder[Array[Byte]].decode(in)).asInstanceOf[TerminalCommand[T]]
+      case 2 => Flush.asInstanceOf[TerminalCommand[T]]
     }
 }
 
@@ -45,7 +45,7 @@ object CompilerCommand {
   final case class Parse(input: String, cursor: Int, context: ParseContext)
     extends CompilerCommand[Either[Missing, ParsedLine]]
 
-  implicit val encoder: Encoder[CompilerCommand[_]] = {
+  implicit def encoder[T]: Encoder[CompilerCommand[T]] = {
     case (out, Complete(cursor, line)) =>
       out.writeByte(0)
       Encoder.encode(out, cursor)
@@ -60,11 +60,20 @@ object CompilerCommand {
       Encoder.encode(out, context)
   }
 
-  implicit val decoder: Decoder[CompilerCommand[_]] =
+  implicit def decoder[T]: Decoder[CompilerCommand[T]] =
     in => in.readByte() match {
-      case 0 => Complete(Decoder[Int].decode(in), Decoder[String].decode(in))
-      case 1 => Highlight(Decoder[String].decode(in))
-      case 2 => Parse(Decoder[String].decode(in), Decoder[Int].decode(in), Decoder[ParseContext].decode(in))
+      case 0 =>
+        val cursor = Decoder[Int].decode(in)
+        val line = Decoder[String].decode(in)
+        Complete(cursor, line).asInstanceOf[CompilerCommand[T]]
+      case 1 =>
+        val line = Decoder[String].decode(in)
+        Highlight(line).asInstanceOf[CompilerCommand[T]]
+      case 2 =>
+        val input = Decoder[String].decode(in)
+        val cursor = Decoder[Int].decode(in)
+        val context = Decoder[ParseContext].decode(in)
+        Parse(input, cursor, context).asInstanceOf[CompilerCommand[T]]
     }
 }
 

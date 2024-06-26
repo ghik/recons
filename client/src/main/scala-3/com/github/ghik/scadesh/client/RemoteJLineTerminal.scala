@@ -2,7 +2,6 @@ package com.github.ghik.scadesh
 package client
 
 import com.github.ghik.scadesh.core.*
-import io.bullet.borer.Codec.ForEither.default
 import org.jline.reader.Parser.ParseContext
 import org.jline.reader.impl.LineReaderImpl
 import org.jline.reader.impl.history.DefaultHistory
@@ -19,20 +18,18 @@ class RemoteJLineTerminal(socket: Socket) extends Closeable {
   // import java.util.logging.{Logger, Level}
   // Logger.getLogger("org.jline").setLevel(Level.FINEST)
 
-  private val comm = new Communicator(socket)
+  private val comm = new ClientCommunicator(socket)
 
-  comm.setCommandHandler(new CommandHandler {
-    def handleCommand[T](cmd: Command[T]): T = cmd match {
-      case Command.ReadLine =>
+  comm.setCommandHandler(new comm.CommandHandler {
+    def handleCommand[T](cmd: TerminalCommand[T]): T = cmd match {
+      case TerminalCommand.ReadLine =>
         try Option(readLine()) catch {
           case _: EndOfFileException | _: UserInterruptException => None
         }
-      case Command.Write(data) =>
+      case TerminalCommand.Write(data) =>
         terminal.writer.write(new String(data, StandardCharsets.UTF_8))
-      case Command.Flush =>
+      case TerminalCommand.Flush =>
         terminal.writer.flush()
-      case _: CompilerCommand[?] =>
-        throw new IllegalArgumentException(s"Unsupported command: $cmd")
     }
   })
 
@@ -53,7 +50,7 @@ class RemoteJLineTerminal(socket: Socket) extends Closeable {
         label
 
     def complete(reader: LineReader, line: JLineParsedLine, candidates: JList[Candidate]): Unit = {
-      val completions = comm.sendCommand(Command.Complete(line.cursor, line.line))
+      val completions = comm.sendCommand(CompilerCommand.Complete(line.cursor, line.line))
       completions.foreach(label => candidates.add(new Candidate(
         /* value    = */ label,
         /* displ    = */ stripBackTicks(label), // displayed value
@@ -69,7 +66,7 @@ class RemoteJLineTerminal(socket: Socket) extends Closeable {
   /** Provide syntax highlighting */
   private val highlighter: Highlighter = new Highlighter {
     def highlight(reader: LineReader, buffer: String): AttributedString = {
-      val highlighted = comm.sendCommand(Command.Highlight(buffer))
+      val highlighted = comm.sendCommand(CompilerCommand.Highlight(buffer))
       AttributedString.fromAnsi(highlighted)
     }
     def setErrorPattern(errorPattern: java.util.regex.Pattern): Unit = ()
@@ -78,7 +75,7 @@ class RemoteJLineTerminal(socket: Socket) extends Closeable {
 
   private val parser: Parser = new Parser {
     def parse(line: String, cursor: Int, context: ParseContext): JLineParsedLine =
-      comm.sendCommand(Command.Parse(line, cursor, context)) match {
+      comm.sendCommand(CompilerCommand.Parse(line, cursor, context)) match {
         case Right(parsedLine) =>
           new JLineParsedLine {
             def word(): String = parsedLine.word
