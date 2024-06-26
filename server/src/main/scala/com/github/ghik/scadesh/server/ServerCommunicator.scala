@@ -1,7 +1,7 @@
 package com.github.ghik.scadesh
 package server
 
-import com.github.ghik.scadesh.core.*
+import com.github.ghik.scadesh.core._
 
 import java.io.{OutputStream, PrintStream}
 import java.net.Socket

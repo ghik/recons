@@ -1,7 +1,7 @@
 package com.github.ghik.scadesh
 package core
 
-import java.io.*
+import java.io._
 import java.net.Socket
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
@@ -60,8 +60,7 @@ abstract class Communicator(socket: Socket) extends Closeable {
   @tailrec private def receive[T: Decoder](): T =
     din.readByte() match {
       case Communicator.Request =>
-        val cmd = Decoder.decode[InCmd[T]]
-        doHandleCommand(cmd(din))
+        doHandleCommand(Decoder.decode[InCmd[T]](din))
         receive[T]()
 
       case Communicator.Response =>
