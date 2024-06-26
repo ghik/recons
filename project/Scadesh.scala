@@ -9,8 +9,8 @@ object Scadesh extends ProjectGroup("scadesh") {
   )
 
   override def commonSettings: Seq[Def.Setting[?]] = Seq(
-    crossScalaVersions := Seq("2.13.14", "3.4.2"),
-    scalaVersion := crossScalaVersions.value.head,
+    crossScalaVersions := Seq(Version.Scala2, Version.Scala3),
+    scalaVersion := Version.Scala3,
     ideBasePackages := Seq("com.github.ghik.scadesh"),
 
     Compile / scalacOptions ++= Seq(
@@ -64,6 +64,8 @@ object Scadesh extends ProjectGroup("scadesh") {
 }
 
 object Version {
+  final val Scala2 = "2.13.14"
+  final val Scala3 = "3.3.3"
   final val JLine = "3.19.0" // needs to be in sync with compiler dependency
   final val Scalatest = "3.2.18"
 }
