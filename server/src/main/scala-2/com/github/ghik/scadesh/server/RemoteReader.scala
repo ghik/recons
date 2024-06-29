@@ -31,8 +31,10 @@ class RemoteReader(
   def redrawLine(): Unit = () //see https://github.com/scala/bug/issues/12395, SimpleReader#redrawLine also use `()`
   def reset(): Unit = accumulator.reset()
 
-  override def close(): Unit =
+  override def close(): Unit = {
     comm.sendCommand(TerminalCommand.Close)
+    comm.close()
+  }
 
   override def withSecondaryPrompt[T](prompt: String)(body: => T): T = {
     val oldPrompt = getReaderVariable(LineReader.SECONDARY_PROMPT_PATTERN)
