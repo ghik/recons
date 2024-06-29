@@ -9,10 +9,10 @@ import org.jline.reader.{Candidate, Completer, EOFError, EndOfFileException, Hig
 import org.jline.terminal.TerminalBuilder
 import org.jline.utils.AttributedString
 
-import java.io.Closeable
 import java.net.Socket
 import java.nio.charset.StandardCharsets
 import java.util.List as JList
+import scala.jdk.CollectionConverters.*
 
 object TerminalRunner {
   def run(socket: Socket): Unit =
@@ -56,16 +56,30 @@ class TerminalRunner(socket: Socket) {
         label
 
     def complete(reader: LineReader, line: JLineParsedLine, candidates: JList[Candidate]): Unit = {
-      val completions = comm.sendCommand(CompilerCommand.Complete(line.cursor, line.line))
-      completions.foreach(label => candidates.add(new Candidate(
-        /* value    = */ label,
-        /* displ    = */ stripBackTicks(label), // displayed value
-        /* group    = */ null, // can be used to group completions together
-        /* descr    = */ null, // TODO use for documentation?
-        /* suffix   = */ null,
-        /* key      = */ null,
-        /* complete = */ false, // if true adds space when completing
-      )))
+      def makeCandidate(label: String) = {
+        new Candidate(
+          /* value    = */ label,
+          /* displ    = */ stripBackTicks(label), // displayed value
+          /* group    = */ null, // can be used to group completions together
+          /* descr    = */ null, // TODO use for documentation?
+          /* suffix   = */ null,
+          /* key      = */ null,
+          /* complete = */ false, // if true adds space when completing
+        )
+      }
+      val comps = comm.sendCommand(CompilerCommand.Complete(line.cursor, line.line))
+      candidates.addAll(comps.map(_.label).distinct.map(makeCandidate).asJava)
+      val lineWord = line.word()
+      comps.filter(c => c.label == lineWord && c.signatures.nonEmpty) match
+        case Nil =>
+        case exachMatches =>
+          val terminal = reader.nn.getTerminal
+          reader.callWidget(LineReader.CLEAR)
+          terminal.writer.println()
+          exachMatches.foreach(_.signatures.foreach(terminal.writer.println))
+          reader.callWidget(LineReader.REDRAW_LINE)
+          reader.callWidget(LineReader.REDISPLAY)
+          terminal.flush()
     }
   }
 

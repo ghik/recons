@@ -7,7 +7,7 @@ import java.io.DataOutput
 
 sealed abstract class CompilerCommand[T: Encoder : Decoder] extends Command[T]
 object CompilerCommand {
-  final case class Complete(cursor: Int, line: String) extends CompilerCommand[Seq[String]]
+  final case class Complete(cursor: Int, line: String) extends CompilerCommand[Seq[CompletionItem]]
   final case class Highlight(line: String) extends CompilerCommand[String]
   final case class Parse(input: String, cursor: Int, context: ParseContext) extends CompilerCommand[Either[Missing, ParsedLine]]
 
@@ -43,10 +43,26 @@ object CompilerCommand {
     }
 }
 
+final case class CompletionItem(label: String, signatures: Seq[String])
+object CompletionItem {
+  implicit val encoder: Encoder[CompletionItem] = {
+    (out, value) =>
+      Encoder.encode(out, value.label)
+      Encoder.encode(out, value.signatures)
+  }
+
+  implicit val decoder: Decoder[CompletionItem] = { in =>
+    val label = Decoder[String].decode(in)
+    val signatures = Decoder[Seq[String]].decode(in)
+    CompletionItem(label, signatures)
+  }
+
+}
+
 final case class ParsedLine(cursor: Int, line: String, word: String, wordCursor: Int)
 object ParsedLine {
   implicit val encoder: Encoder[ParsedLine] = {
-    (out: DataOutput, value: ParsedLine) =>
+    (out, value) =>
       Encoder.encode(out, value.cursor)
       Encoder.encode(out, value.line)
       Encoder.encode(out, value.word)
@@ -70,4 +86,3 @@ object Missing {
   implicit val decoder: Decoder[Missing] =
     in => Missing(Decoder[String].decode(in))
 }
-

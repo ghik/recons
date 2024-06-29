@@ -10,6 +10,7 @@ import dotty.tools.dotc.printing.SyntaxHighlighting
 import dotty.tools.dotc.reporting.Reporter
 import dotty.tools.dotc.util.SourceFile
 import dotty.tools.repl.*
+import dotty.tools.repl.Rendering.showUser
 import org.jline.reader
 import org.jline.reader.*
 import org.jline.reader.Parser.ParseContext
@@ -36,7 +37,10 @@ class RemoteReplRunner private(
       comm.setCommandHandler(new comm.CommandHandler {
         def handleCommand[T](cmd: CompilerCommand[T]): T = cmd match {
           case CompilerCommand.Complete(cursor, line) =>
-            completions(cursor, line, state).map(_.value)
+            completionsWithSignatures(cursor, line, state).map { comp =>
+              val signatures = comp.symbols.map(s => SyntaxHighlighting.highlight(s.showUser))
+              CompletionItem(comp.label, signatures)
+            }
           case CompilerCommand.Highlight(line) =>
             SyntaxHighlighting.highlight(line)
           case CompilerCommand.Parse(input, cursor, context) =>

@@ -71,7 +71,7 @@ object Scadesh extends ProjectGroup("scadesh") {
 
 object Version {
   final val Scala2 = "2.13.14"
-  final val Scala3 = "3.3.3"
+  final val Scala3 = "3.4.2"
   final val JLine = "3.19.0" // needs to be in sync with compiler dependency
   final val Scalatest = "3.2.18"
 }

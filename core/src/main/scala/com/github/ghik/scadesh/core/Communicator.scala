@@ -33,7 +33,7 @@ abstract class Communicator(socket: Socket) extends Closeable {
   def setCommandHandler(handler: CommandHandler): Unit =
     commandHandler = handler
 
-  private def writeData[T: Encoder](tpe: Byte, data: T): Unit = {
+  private def writeData[T](tpe: Byte, data: T)(implicit e: Encoder[T]): Unit = {
     dout.writeByte(tpe)
     Encoder.encode(dout, data)
     dout.flush()
@@ -55,7 +55,7 @@ abstract class Communicator(socket: Socket) extends Closeable {
       case _: EOFException =>
     }
 
-  @tailrec private def receive[T: Decoder](): T =
+  @tailrec private def receive[T]()(implicit d: Decoder[T]): T =
     din.readByte() match {
       case Communicator.Request =>
         doHandleCommand(Decoder.decode[InCmd[T]](din))
