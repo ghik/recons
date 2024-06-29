@@ -10,7 +10,7 @@ object Scadesh extends ProjectGroup("scadesh") {
 
   override def commonSettings: Seq[Def.Setting[?]] = Seq(
     crossScalaVersions := Seq(Version.Scala2, Version.Scala3),
-    scalaVersion := Version.Scala3,
+    scalaVersion := Version.Scala2,
     ideBasePackages := Seq("com.github.ghik.scadesh"),
 
     Compile / scalacOptions ++= Seq(
@@ -35,21 +35,16 @@ object Scadesh extends ProjectGroup("scadesh") {
   lazy val core = mkSubProject
     .settings(
       libraryDependencies ++= Seq(
-        "org.jline" % "jline-terminal" % Version.JLine,
-        "org.jline" % "jline-reader" % Version.JLine,
+        scalaBinaryVersion.value match {
+          case "2.13" => "org.scala-lang" % "scala-compiler" % scalaVersion.value
+          case "3" => "org.scala-lang" %% "scala3-compiler" % scalaVersion.value
+        },
       ),
     )
 
   lazy val server = mkSubProject
     .dependsOn(core % CompileAndTest)
     .settings(
-      libraryDependencies ++= Seq(
-        scalaBinaryVersion.value match {
-          case "2.13" => "org.scala-lang" % "scala-compiler" % scalaVersion.value
-          case "3" => "org.scala-lang" %% "scala3-compiler" % scalaVersion.value
-        },
-      ),
-
       Test / resourceGenerators += Def.task {
         val file = (Test / resourceManaged).value / "classpath"
         val classpath = (Compile / fullClasspath).value
@@ -61,17 +56,10 @@ object Scadesh extends ProjectGroup("scadesh") {
 
   lazy val client = mkSubProject
     .dependsOn(core % CompileAndTest)
-    .settings(
-      libraryDependencies ++= (scalaBinaryVersion.value match {
-        case "2.13" => Seq("org.scala-lang" % "scala-compiler" % scalaVersion.value)
-        case "3" => Nil
-      }),
-    )
 }
 
 object Version {
   final val Scala2 = "2.13.14"
   final val Scala3 = "3.4.2"
-  final val JLine = "3.19.0" // needs to be in sync with compiler dependency
   final val Scalatest = "3.2.18"
 }

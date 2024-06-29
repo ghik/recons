@@ -20,7 +20,7 @@ class RemoteReader(
   override def interactive: Boolean = true
 
   protected def readOneLine(prompt: String): String =
-    comm.sendCommand(TerminalCommand.ReadLine(prompt))
+    comm.sendCommand(TerminalCommand.ReadLine(prompt)).orNull
 
   protected def getReaderVariable(name: String): String =
     comm.sendCommand(TerminalCommand.GetReaderVariable(name))
