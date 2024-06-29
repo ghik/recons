@@ -7,7 +7,7 @@ import scala.util.{Failure, Success, Try}
 
 class ReplServer(
   classpath: Seq[String],
-  port: Int = 6666,
+  port: Int = ReplServer.DefaultPort,
 ) extends Closeable {
   private val socket = new ServerSocket(port)
 
@@ -25,6 +25,8 @@ class ReplServer(
     socket.close()
 }
 object ReplServer {
+  final val DefaultPort = 6666
+
   def main(args: Array[String]): Unit = {
     val classpath = sys.props("java.class.path").split(File.pathSeparator).toSeq
     new ReplServer(classpath).run()
