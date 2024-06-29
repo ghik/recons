@@ -1,7 +1,7 @@
 package com.github.ghik.scadesh
 package client
 
-import com.github.ghik.scadesh.core._
+import com.github.ghik.scadesh.core.*
 
 import java.net.Socket
 

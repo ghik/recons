@@ -1,12 +1,10 @@
 package com.github.ghik.scadesh
 package core
 
-import java.io._
+import java.io.*
 import java.net.Socket
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
-
-class CommunicatorException(message: String) extends IOException(message)
 
 object Communicator {
   private val Request = 0: Byte
@@ -78,3 +76,5 @@ abstract class Communicator(socket: Socket) extends Closeable {
   def close(): Unit =
     socket.close()
 }
+
+class CommunicatorException(message: String) extends IOException(message)
