@@ -14,7 +14,11 @@ import java.net.Socket
 import java.nio.charset.StandardCharsets
 import java.util.List as JList
 
-class RemoteJLineTerminal(socket: Socket) extends Closeable {
+object TerminalRunner {
+  def run(socket: Socket): Unit =
+    new TerminalRunner(socket).run()
+}
+class TerminalRunner(socket: Socket) {
   // import java.util.logging.{Logger, Level}
   // Logger.getLogger("org.jline").setLevel(Level.FINEST)
 
@@ -30,6 +34,8 @@ class RemoteJLineTerminal(socket: Socket) extends Closeable {
         terminal.writer.write(new String(data, StandardCharsets.UTF_8))
       case TerminalCommand.Flush =>
         terminal.writer.flush()
+      case TerminalCommand.Close =>
+        terminal.close()
     }
   })
 
@@ -146,6 +152,4 @@ class RemoteJLineTerminal(socket: Socket) extends Closeable {
 
     lineReader.readLine(prompt)
   }
-
-  override def close(): Unit = terminal.close()
 }

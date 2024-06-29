@@ -1,7 +1,7 @@
 package com.github.ghik.scadesh
 package server
 
-import java.io.*
+import java.io.{Closeable, File}
 import java.net.{ServerSocket, Socket, SocketException}
 import scala.util.{Failure, Success, Try}
 
@@ -34,7 +34,6 @@ object ReplServer {
 class ReplThread(client: Socket, classpath: Seq[String]) extends Thread {
   override def run(): Unit = {
     val settings = Array("-cp", classpath.mkString(File.pathSeparator))
-    val driver = new RemoteReplDriver(settings, client)
-    driver.tryRunning
+    RemoteReplRunner.run(settings, client)
   }
 }

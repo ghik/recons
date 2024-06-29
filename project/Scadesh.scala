@@ -61,6 +61,12 @@ object Scadesh extends ProjectGroup("scadesh") {
 
   lazy val client = mkSubProject
     .dependsOn(core % CompileAndTest)
+    .settings(
+      libraryDependencies ++= (scalaBinaryVersion.value match {
+        case "2.13" => Seq("org.scala-lang" % "scala-compiler" % scalaVersion.value)
+        case "3" => Nil
+      }),
+    )
 }
 
 object Version {

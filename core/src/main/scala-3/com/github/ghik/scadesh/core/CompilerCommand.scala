@@ -7,12 +7,9 @@ import java.io.DataOutput
 
 sealed abstract class CompilerCommand[T: Encoder : Decoder] extends Command[T]
 object CompilerCommand {
-  final case class Complete(cursor: Int, line: String)
-    extends CompilerCommand[Seq[String]]
-  final case class Highlight(line: String)
-    extends CompilerCommand[String]
-  final case class Parse(input: String, cursor: Int, context: ParseContext)
-    extends CompilerCommand[Either[Missing, ParsedLine]]
+  final case class Complete(cursor: Int, line: String) extends CompilerCommand[Seq[String]]
+  final case class Highlight(line: String) extends CompilerCommand[String]
+  final case class Parse(input: String, cursor: Int, context: ParseContext) extends CompilerCommand[Either[Missing, ParsedLine]]
 
   implicit def encoder[T]: Encoder[CompilerCommand[T]] = {
     case (out, Complete(cursor, line)) =>

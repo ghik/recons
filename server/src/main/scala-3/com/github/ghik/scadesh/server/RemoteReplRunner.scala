@@ -18,18 +18,11 @@ import java.io.PrintStream
 import java.net.Socket
 import scala.annotation.tailrec
 
-class RemoteReplDriver private(
+class RemoteReplRunner private(
   settings: Array[String],
   comm: ServerCommunicator,
   out: PrintStream,
-  classLoader: Option[ClassLoader],
-) extends ReplDriver(settings, out, classLoader) { self =>
-  private def this(settings: Array[String], comm: ServerCommunicator, classLoader: Option[ClassLoader]) =
-    this(settings, comm, new CommunicatorPrintStream(comm), classLoader)
-
-  def this(settings: Array[String], socket: Socket, classLoader: Option[ClassLoader] = None) =
-    this(settings, new ServerCommunicator(socket), classLoader)
-
+) extends ReplDriver(settings, out) { self =>
   // implementation copied from superclass, only with JLineTerminal replaced by RemoteTerminal
   override def runUntilQuit(using initialState: State)(): State = {
     out.println(
@@ -65,7 +58,10 @@ class RemoteReplDriver private(
     try runBody {
       loop()
     }
-    finally comm.close()
+    finally {
+      comm.sendCommand(TerminalCommand.Close)
+      comm.close()
+    }
   }
 
   private def blue(str: String)(using Context) =
@@ -124,7 +120,7 @@ class RemoteReplDriver private(
       // complete we need to ensure that the :<partial-word> isn't split into
       // 2 tokens, but rather the entire thing is treated as the "word", in
       //   order to insure the : is replaced in the completion.
-      case ParseContext.COMPLETE if RemoteReplDriver.commands.exists(_.startsWith(input)) =>
+      case ParseContext.COMPLETE if RemoteReplRunner.commands.exists(_.startsWith(input)) =>
         parsedLine(input, cursor)
 
       case ParseContext.COMPLETE =>
@@ -144,7 +140,13 @@ class RemoteReplDriver private(
     }
   }
 }
-object RemoteReplDriver {
+object RemoteReplRunner {
+  def run(settings: Array[String], socket: Socket): Unit = {
+    val comm = new ServerCommunicator(socket)
+    val out = new CommunicatorPrintStream(comm)
+    new RemoteReplRunner(settings, comm, out).tryRunning
+  }
+
   private val commands: List[String] = List(
     Quit.command,
     Quit.alias,
