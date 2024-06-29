@@ -17,6 +17,7 @@ object RemoteReplRunner {
     val out = new PrintWriter(new CommunicatorOutputStream(comm))
     val settings = new GenericRunnerSettings(s => if (s.nonEmpty) out.println(s))
     settings.processArguments(args.toList, processAll = false)
+    System.setProperty("scala.color", "true")
     val config: ShellConfig = ShellConfig(settings)
     new RemoteReplRunner(comm, config, out).run(settings)
   }
