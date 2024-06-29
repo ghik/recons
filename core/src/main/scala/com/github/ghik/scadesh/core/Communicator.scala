@@ -1,7 +1,7 @@
 package com.github.ghik.scadesh
 package core
 
-import java.io.*
+import java.io._
 import java.net.Socket
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
