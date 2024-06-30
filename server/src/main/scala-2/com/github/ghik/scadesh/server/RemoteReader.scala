@@ -13,14 +13,22 @@ class RemoteReader(
   comm: ServerCommunicator,
   val accumulator: Accumulator,
   val completion: shell.Completion,
+  initCode: String,
 ) extends shell.InteractiveReader {
   // `scala.tools.nsc.interpreter.jline.Reader` currently uses `HistoryAdaptor`, which does nothing and is marked as TODO.
   // It's unclear why server side needs history at all, this should be a terminal-only, client-side thing.
   override def history: shell.History = NoHistory
   override def interactive: Boolean = true
 
+  private var initLoaded = initCode.isEmpty
+
   protected def readOneLine(prompt: String): String =
-    comm.sendCommand(TerminalCommand.ReadLine(prompt)).orNull
+    if (!initLoaded) {
+      initLoaded = true
+      initCode
+    } else {
+      comm.sendCommand(TerminalCommand.ReadLine(prompt)).orNull
+    }
 
   protected def getReaderVariable(name: String): String =
     comm.sendCommand(TerminalCommand.GetReaderVariable(name))

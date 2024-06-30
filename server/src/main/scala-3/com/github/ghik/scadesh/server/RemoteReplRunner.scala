@@ -23,6 +23,7 @@ class RemoteReplRunner private(
   settings: Array[String],
   comm: ServerCommunicator,
   out: PrintStream,
+  initCode: String,
 ) extends ReplDriver(settings, out) { self =>
   // implementation copied from superclass, only with JLineTerminal replaced by RemoteTerminal
   override def runUntilQuit(using initialState: State)(): State = {
@@ -60,7 +61,8 @@ class RemoteReplRunner private(
     }
 
     try runBody {
-      loop()
+      val state = if (initCode.nonEmpty) interpret(ParseResult(initCode)) else initialState
+      loop(using state)()
     }
     finally {
       comm.sendCommand(TerminalCommand.Close)
@@ -145,10 +147,10 @@ class RemoteReplRunner private(
   }
 }
 object RemoteReplRunner {
-  def run(settings: Array[String], socket: Socket): Unit = {
+  def run(settings: Array[String], initCode: String, socket: Socket): Unit = {
     val comm = new ServerCommunicator(socket)
     val out = new CommunicatorPrintStream(comm)
-    new RemoteReplRunner(settings, comm, out).tryRunning
+    new RemoteReplRunner(settings, comm, out, initCode).tryRunning
   }
 
   private val commands: List[String] = List(

@@ -12,17 +12,22 @@ import scala.tools.nsc.{GenericRunnerSettings, Settings}
 import scala.util.control.NonFatal
 
 object RemoteReplRunner {
-  def run(args: Array[String], socket: Socket): Unit = {
+  def run(args: Array[String], initCode: String, socket: Socket): Unit = {
     val comm = new ServerCommunicator(socket)
     val out = new PrintWriter(new CommunicatorOutputStream(comm))
     val settings = new GenericRunnerSettings(s => if (s.nonEmpty) out.println(s))
     settings.processArguments(args.toList, processAll = false)
     System.setProperty("scala.color", "true")
     val config: ShellConfig = ShellConfig(settings)
-    new RemoteReplRunner(comm, config, out).run(settings)
+    new RemoteReplRunner(comm, config, out, initCode).run(settings)
   }
 }
-class RemoteReplRunner(comm: ServerCommunicator, config: ShellConfig, out: PrintWriter) extends ILoop(config, out = out) {
+class RemoteReplRunner(
+  comm: ServerCommunicator,
+  config: ShellConfig,
+  out: PrintWriter,
+  initCode: String,
+) extends ILoop(config, out = out) {
   private var readerReplaced = false
 
   override def createInterpreter(interpreterSettings: Settings): Unit = {
@@ -46,7 +51,7 @@ class RemoteReplRunner(comm: ServerCommunicator, config: ShellConfig, out: Print
       val accumulator = new Accumulator
       // must do this after `intp` is set by super call, because `completion` needs it
       val completer = completion(accumulator)
-      deafultInField.set(this, new RemoteReader(comm, accumulator, completer))
+      deafultInField.set(this, new RemoteReader(comm, accumulator, completer, initCode))
 
       val parser = new ScalaParser(intp)
 

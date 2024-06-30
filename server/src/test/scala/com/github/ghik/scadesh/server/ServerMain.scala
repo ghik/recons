@@ -6,6 +6,15 @@ import java.io.File
 object ServerMain {
   def main(args: Array[String]): Unit = {
     val classpath = sys.props("java.class.path").split(File.pathSeparator).toSeq
-    new ReplServer(classpath).run()
+
+    val initCode =
+      """
+        |import java.io._
+        |
+        |val x = 50
+        |val str = x.toString
+        |""".stripMargin
+
+    new ReplServer(classpath, initCode = initCode).run()
   }
 }

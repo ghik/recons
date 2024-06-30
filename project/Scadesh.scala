@@ -11,7 +11,7 @@ object Scadesh extends ProjectGroup("scadesh") {
   override def commonSettings: Seq[Def.Setting[?]] = Seq(
     crossVersion := CrossVersion.full,
     crossScalaVersions := Seq(Version.Scala2, Version.Scala3),
-    scalaVersion := Version.Scala2,
+    scalaVersion := Version.Scala3,
     ideBasePackages := Seq("com.github.ghik.scadesh"),
 
     Compile / scalacOptions ++= Seq(
