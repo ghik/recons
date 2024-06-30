@@ -26,11 +26,6 @@ class ReplServer(
 }
 object ReplServer {
   final val DefaultPort = 6666
-
-  def main(args: Array[String]): Unit = {
-    val classpath = sys.props("java.class.path").split(File.pathSeparator).toSeq
-    new ReplServer(classpath).run()
-  }
 }
 
 class ReplThread(client: Socket, classpath: Seq[String]) extends Thread {
