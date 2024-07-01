@@ -12,28 +12,34 @@ import scala.tools.nsc.{GenericRunnerSettings, Settings}
 import scala.util.control.NonFatal
 
 object RemoteReplRunner {
-  def run(args: Array[String], initCode: String, socket: Socket): Unit = {
+  def run(
+    args: Array[String],
+    socket: Socket,
+    bindings: Map[String, ReplBinding],
+    initCode: String,
+  ): Unit = {
     val comm = new ServerCommunicator(socket)
     val out = new PrintWriter(new CommunicatorOutputStream(comm))
     val settings = new GenericRunnerSettings(s => if (s.nonEmpty) out.println(s))
     settings.processArguments(args.toList, processAll = false)
     System.setProperty("scala.color", "true")
     val config: ShellConfig = ShellConfig(settings)
-    new RemoteReplRunner(comm, config, out, initCode).run(settings)
+    new RemoteReplRunner(comm, config, out, bindings, initCode).run(settings)
   }
 }
 class RemoteReplRunner(
   comm: ServerCommunicator,
   config: ShellConfig,
   out: PrintWriter,
+  bindings: Map[String, ReplBinding],
   initCode: String,
 ) extends ILoop(config, out = out) {
-  private var readerReplaced = false
+  private var initialized = false
 
   override def createInterpreter(interpreterSettings: Settings): Unit = {
     super.createInterpreter(interpreterSettings)
 
-    if (!readerReplaced) {
+    if (!initialized) {
       try {
         // force initialization of `lazy val defaultIn`
         val defaultInGetter = classOf[ILoop].getDeclaredMethod("defaultIn")
@@ -68,7 +74,12 @@ class RemoteReplRunner(
         }
       })
 
-      readerReplaced = true
+      bindings.foreach {
+        case (name, ReplBinding(staticType, value)) =>
+          intp.bind(name, staticType, value)
+      }
+
+      initialized = true
     }
   }
 }

@@ -23,8 +23,9 @@ class RemoteReplRunner private(
   settings: Array[String],
   comm: ServerCommunicator,
   out: PrintStream,
+  bindings: Map[String, ReplBinding],
   initCode: String,
-) extends ReplDriver(settings, out) { self =>
+) extends ReplDriver(settings, out, Some(classOf[RemoteReplRunner].getClassLoader)) { self =>
   // implementation copied from superclass, only with JLineTerminal replaced by RemoteTerminal
   override def runUntilQuit(using initialState: State)(): State = {
     out.println(
@@ -60,11 +61,16 @@ class RemoteReplRunner private(
       else loop(using interpret(res))()
     }
 
+    val bindingDecls = ReplBinding.declarations(bindings)
+    val fullInitCode = List(bindingDecls, initCode).filter(_.nonEmpty).mkString("\n")
+
+    def interpretInit(using state: State)(): State =
+      if (fullInitCode.isBlank) state
+      else ReplBinding.withBindings(bindings)(interpret(ParseResult(fullInitCode)))
+
     try runBody {
-      val state = if (initCode.nonEmpty) interpret(ParseResult(initCode)) else initialState
-      loop(using state)()
-    }
-    finally {
+      loop(using interpretInit())()
+    } finally {
       comm.sendCommand(TerminalCommand.Close)
       comm.close()
     }
@@ -147,10 +153,15 @@ class RemoteReplRunner private(
   }
 }
 object RemoteReplRunner {
-  def run(settings: Array[String], initCode: String, socket: Socket): Unit = {
+  def run(
+    settings: Array[String],
+    socket: Socket,
+    bindings: Map[String, ReplBinding],
+    initCode: String,
+  ): Unit = {
     val comm = new ServerCommunicator(socket)
     val out = new CommunicatorPrintStream(comm)
-    new RemoteReplRunner(settings, comm, out, initCode).tryRunning
+    new RemoteReplRunner(settings, comm, out, bindings, initCode).tryRunning
   }
 
   private val commands: List[String] = List(
