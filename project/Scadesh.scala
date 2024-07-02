@@ -1,6 +1,7 @@
 import com.github.ghik.sbt.nosbt.ProjectGroup
+import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
+import sbt.*
 import sbt.Keys.*
-import sbt.{Def, *}
 import sbtide.Keys.*
 
 object Scadesh extends ProjectGroup("scadesh") {
@@ -13,11 +14,14 @@ object Scadesh extends ProjectGroup("scadesh") {
     crossScalaVersions := Seq(Version.Scala2, Version.Scala3),
     scalaVersion := Version.Scala3,
     ideBasePackages := Seq("com.github.ghik.scadesh"),
+    Compile / doc / sources := Nil,
 
     Compile / scalacOptions ++= Seq(
       "-encoding", "utf-8",
       "-deprecation",
-      "-Werror",
+      "-feature",
+      "-unchecked",
+      "-Xfatal-warnings",
     ),
 
     libraryDependencies ++= Seq(
@@ -57,6 +61,7 @@ object Scadesh extends ProjectGroup("scadesh") {
 
   lazy val client = mkSubProject
     .dependsOn(core % CompileAndTest)
+    .enablePlugins(JavaAppPackaging)
 }
 
 object Version {
