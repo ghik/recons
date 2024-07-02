@@ -61,12 +61,12 @@ class RemoteReplRunner private(
       else loop(using interpret(res))()
     }
 
-    val bindingDecls = ReplBinding.declarations(bindings)
+    val bindingDecls = ReplBindingHelpers.declarations(bindings)
     val fullInitCode = List(bindingDecls, initCode).filter(_.nonEmpty).mkString("\n")
 
     def interpretInit(using state: State)(): State =
       if (fullInitCode.isBlank) state
-      else ReplBinding.withBindings(bindings)(interpret(ParseResult(fullInitCode)))
+      else ReplBindingHelpers.withBindings(bindings)(interpret(ParseResult(fullInitCode)))
 
     try runBody {
       loop(using interpretInit())()
