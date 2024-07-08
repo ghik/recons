@@ -9,29 +9,29 @@ import scala.util.{Failure, Success, Try}
 
 class DynamicAccessor(obj: AnyRef) extends Dynamic {
 
-  private def allInterfaces(cls: Class[_]): List[Class[_]] = {
-    val expanded = new mutable.HashSet[Class[_]]
+  private def allInterfaces(cls: Class[?]): List[Class[?]] = {
+    val expanded = new mutable.HashSet[Class[?]]
 
-    def expand(iface: Class[_]): Iterator[Class[_]] =
+    def expand(iface: Class[?]): Iterator[Class[?]] =
       if (expanded.add(iface))
         Iterator(iface) ++ iface.getInterfaces.iterator.flatMap(expand)
       else
         Iterator.empty
 
-    Iterator.iterate[Class[_]](cls)(_.getSuperclass)
+    Iterator.iterate[Class[?]](cls)(_.getSuperclass)
       .takeWhile(_ != null)
       .flatMap(_.getInterfaces.iterator)
       .flatMap(expand)
       .toList
   }
 
-  private def possibleFieldNames(cls: Class[_], name: String): List[String] =
+  private def possibleFieldNames(cls: Class[?], name: String): List[String] =
     name :: allInterfaces(cls).map { iface =>
       iface.getName.replace('.', '$') + "$$" + name
     }
 
   @tailrec
-  private def findClassField(cls: Class[_], names: List[String]): Field =
+  private def findClassField(cls: Class[?], names: List[String]): Field =
     if (cls == null) null else {
       @tailrec def loop(names: List[String]): Field = names match {
         case Nil => null
@@ -49,7 +49,7 @@ class DynamicAccessor(obj: AnyRef) extends Dynamic {
       }
     }
 
-  private def findField(cls: Class[_], name: String): Field =
+  private def findField(cls: Class[?], name: String): Field =
     findClassField(cls, possibleFieldNames(cls, name)) match {
       case null => throw new NoSuchFieldException(name)
       case f =>

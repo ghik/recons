@@ -12,6 +12,9 @@ trait Base {
 class Something(val x: Int) extends Base {
   private val y = 42
   private var z = 25
+
+  def yy = y
+  def zz = z
 }
 
 class DynamicAccessorTest extends AnyFunSuite {
@@ -19,9 +22,9 @@ class DynamicAccessorTest extends AnyFunSuite {
 
   test("simple") {
     val d = dyn(new Something(13))
-    assert(d.x == 13)
-    assert(d.y == 42)
-    assert(d.z == 25)
+    assert(d.x == (13: Any))
+    assert(d.y == (42: Any))
+    assert(d.z == (25: Any))
     assert(d.foo == "foo")
     assert(d.bar == "bar")
   }
