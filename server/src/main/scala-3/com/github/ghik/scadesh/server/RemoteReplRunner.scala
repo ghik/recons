@@ -27,6 +27,8 @@ class RemoteReplRunner private(
   bindings: Map[String, ReplBinding],
   initCode: String,
 ) extends ReplDriver(settings, out, Some(classOf[RemoteReplRunner].getClassLoader)) { self =>
+  override protected def redirectOutput: Boolean = false
+
   // implementation copied from superclass, only with JLineTerminal replaced by RemoteTerminal
   override def runUntilQuit(using initialState: State)(): State = {
     out.println(
