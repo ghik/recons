@@ -23,6 +23,12 @@ object Scadesh extends ProjectGroup("scadesh") {
       "-unchecked",
       "-Xfatal-warnings",
     ),
+    Compile / scalacOptions ++= {
+      scalaBinaryVersion.value match {
+        case "2.13" => Seq("-Xsource:3")
+        case "3" => Seq()
+      }
+    },
 
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % Version.Scalatest % Test,

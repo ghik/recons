@@ -11,7 +11,7 @@ class ShellExtensions(val out: PrintStream) {
   def print(x: Any): Unit = out.print(x)
   def println(): Unit = out.println()
   def println(x: Any): Unit = out.println(x)
-  def printf(format: String, args: Any*): Unit = out.printf(format, args: _*)
+  def printf(format: String, args: Any*): Unit = out.printf(format, args *)
 
   implicit def dynamicOps(value: Any): DynamicOps =
     new ShellExtensions.DynamicOps(value)
