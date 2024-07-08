@@ -2,6 +2,7 @@ package com.github.ghik.scadesh
 package server
 
 import com.github.ghik.scadesh.core.TerminalCommand
+import com.github.ghik.scadesh.server.utils.ShellExtensions
 import org.jline.reader._
 
 import scala.tools.nsc.interpreter.shell
@@ -20,12 +21,12 @@ class RemoteReader(
   override def history: shell.History = NoHistory
   override def interactive: Boolean = true
 
-  private var initLoaded = initCode.isEmpty
+  private var initLoaded = false
 
   protected def readOneLine(prompt: String): String =
     if (!initLoaded) {
       initLoaded = true
-      initCode
+      s"import ${ShellExtensions.BindingName}._\n$initCode"
     } else {
       comm.sendCommand(TerminalCommand.ReadLine(prompt)).orNull
     }

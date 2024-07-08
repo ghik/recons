@@ -11,13 +11,15 @@ class ShellExtensions(val out: PrintStream) {
   def print(x: Any): Unit = out.print(x)
   def println(): Unit = out.println()
   def println(x: Any): Unit = out.println(x)
-  def printf(format: String, args: Any*): Unit = out.printf(format, args*)
+  def printf(format: String, args: Any*): Unit = out.printf(format, args: _*)
 
   implicit def dynamicOps(value: Any): DynamicOps =
     new ShellExtensions.DynamicOps(value)
 }
 
 object ShellExtensions {
+  final val BindingName = "$ext"
+
   class DynamicOps(private val value: Any) extends AnyVal {
     def d: DynamicAccessor = new DynamicAccessor(value.asInstanceOf[AnyRef])
   }

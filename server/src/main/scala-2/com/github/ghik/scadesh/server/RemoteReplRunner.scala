@@ -2,6 +2,7 @@ package com.github.ghik.scadesh
 package server
 
 import com.github.ghik.scadesh.core.{CompilerCommand, CompleteResult, ParseResult}
+import com.github.ghik.scadesh.server.utils.ShellExtensions
 import org.jline.reader.{EOFError, SyntaxError}
 
 import java.io.PrintWriter
@@ -33,7 +34,7 @@ class RemoteReplRunner(
   out: PrintWriter,
   bindings: Map[String, ReplBinding],
   initCode: String,
-) extends ILoop(config, out = out) {
+) extends ILoop(config, out = new PrintWriter(out)) {
   private var initialized = false
 
   override def createInterpreter(interpreterSettings: Settings): Unit = {
@@ -74,6 +75,11 @@ class RemoteReplRunner(
         }
       })
 
+      intp.bind(
+        ShellExtensions.BindingName,
+        classOf[ShellExtensions].getName,
+        new ShellExtensions(new CommunicatorPrintStream(comm)),
+      )
       bindings.foreach {
         case (name, ReplBinding(staticType, value)) =>
           intp.bind(name, staticType, value)
