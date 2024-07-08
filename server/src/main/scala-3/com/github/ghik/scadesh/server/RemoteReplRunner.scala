@@ -2,6 +2,7 @@ package com.github.ghik.scadesh
 package server
 
 import com.github.ghik.scadesh.core.{ParsedLine, *}
+import com.github.ghik.scadesh.server.utils.ShellExtensions
 import dotty.tools.dotc.config.Properties.{javaVersion, javaVmName, simpleVersionString}
 import dotty.tools.dotc.core.Contexts.*
 import dotty.tools.dotc.parsing.Scanners.Scanner
@@ -61,12 +62,14 @@ class RemoteReplRunner private(
       else loop(using interpret(res))()
     }
 
-    val bindingDecls = ReplBindingHelpers.declarations(bindings)
-    val fullInitCode = List(bindingDecls, initCode).filter(_.nonEmpty).mkString("\n")
+    val fullBindings = Map("$ext" -> ReplBinding.forClass(new ShellExtensions(out))) ++ bindings
+    val bindingDecls = ReplBindingHelpers.declarations(fullBindings)
+    val fullInitCode = List(bindingDecls, "import $ext.*", initCode)
+      .filter(_.nonEmpty).mkString("\n")
 
     def interpretInit(using state: State)(): State =
       if (fullInitCode.isBlank) state
-      else ReplBindingHelpers.withBindings(bindings)(interpret(ParseResult(fullInitCode)))
+      else ReplBindingHelpers.withBindings(fullBindings)(interpret(ParseResult(fullInitCode)))
 
     try runBody {
       loop(using interpretInit())()
