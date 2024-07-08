@@ -1,7 +1,7 @@
 package com.github.ghik.scadesh
 package server.utils
 
-import com.github.ghik.scadesh.server.utils.ShellExtensions.DynamicOps
+import com.github.ghik.scadesh.server.utils.ShellExtensions.UniversalOps
 
 import java.io.PrintStream
 import scala.language.implicitConversions
@@ -13,14 +13,16 @@ class ShellExtensions(val out: PrintStream) {
   def println(x: Any): Unit = out.println(x)
   def printf(format: String, args: Any*): Unit = out.printf(format, args *)
 
-  implicit def dynamicOps(value: Any): DynamicOps =
-    new ShellExtensions.DynamicOps(value)
+  implicit def universalOps[T](value: T): UniversalOps[T] =
+    new ShellExtensions.UniversalOps(value)
 }
 
 object ShellExtensions {
   final val BindingName = "$ext"
 
-  class DynamicOps(private val value: Any) extends AnyVal {
+  class UniversalOps[T](private val value: T) extends AnyVal {
     def d: DynamicAccessor = new DynamicAccessor(value.asInstanceOf[AnyRef])
+
+    def as[U]: U = value.asInstanceOf[U]
   }
 }
