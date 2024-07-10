@@ -1,10 +1,11 @@
 package com.github.ghik.scadesh
 package server.utils
 
-import com.github.ghik.scadesh.server.utils.ShellExtensions.UniversalOps
+import com.github.ghik.scadesh.server.utils.ShellExtensions.{ClassOps, UniversalOps}
 
 import java.io.PrintStream
 import scala.language.implicitConversions
+import scala.reflect.{ClassTag, classTag}
 
 class ShellExtensions(val out: PrintStream) {
   // shadow Predef methods so that the output is sent to the shell client
@@ -13,8 +14,14 @@ class ShellExtensions(val out: PrintStream) {
   def println(x: Any): Unit = out.println(x)
   def printf(format: String, args: Any*): Unit = out.printf(format, args *)
 
+  def statics[C: ClassTag]: StaticsDynamicAccessor =
+    new StaticsDynamicAccessor(classTag[C].runtimeClass)
+
   implicit def universalOps[T](value: T): UniversalOps[T] =
     new ShellExtensions.UniversalOps(value)
+
+  implicit def classOps[T](cls: Class[T]): ClassOps[T] =
+    new ClassOps(cls)
 }
 
 object ShellExtensions {
@@ -24,5 +31,9 @@ object ShellExtensions {
     def d: DynamicAccessor = new DynamicAccessor(value.asInstanceOf[AnyRef])
 
     def as[U]: U = value.asInstanceOf[U]
+  }
+
+  class ClassOps[T](private val cls: Class[T]) extends AnyVal {
+    def d: StaticsDynamicAccessor = new StaticsDynamicAccessor(cls)
   }
 }

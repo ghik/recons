@@ -7,7 +7,7 @@ import scala.collection.mutable
 import scala.language.dynamics
 import scala.util.{Failure, Success, Try}
 
-class DynamicAccessor(obj: AnyRef) extends Dynamic {
+class DynamicAccessor(private val obj: AnyRef) extends AnyVal with Dynamic {
 
   private def allInterfaces(cls: Class[?]): List[Class[?]] = {
     val expanded = new mutable.HashSet[Class[?]]
