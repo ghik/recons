@@ -3,7 +3,14 @@ package server
 
 import java.io.File
 
+object Thinger {
+  private def staticMaybe(str: String): String = str.toUpperCase
+}
 class Thinger {
+  private val priv = "priv"
+
+  private def privUpper(arg: String): String = priv.toUpperCase + arg
+
   def foo: Int = 42
 }
 

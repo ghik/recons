@@ -59,4 +59,20 @@ class DynamicAccessor(private val obj: AnyRef) extends AnyVal with Dynamic {
 
   def selectDynamic(name: String): AnyRef =
     findField(obj.getClass, name).get(obj)
+
+  def applyDynamic(name: String)(args: Any*): AnyRef = {
+    val method =
+      Iterator.iterate(obj.getClass)(_.getSuperclass)
+        .takeWhile(_ != null)
+        .flatMap(_.getDeclaredMethods.find { m =>
+          !Modifier.isStatic(m.getModifiers) &&
+            m.getName == name &&
+            m.getParameterCount == args.length
+        })
+        .nextOption()
+        .getOrElse(throw new NoSuchMethodException(s"$name(${args.length} args)"))
+
+    method.setAccessible(true)
+    method.invoke(obj, args *)
+  }
 }
