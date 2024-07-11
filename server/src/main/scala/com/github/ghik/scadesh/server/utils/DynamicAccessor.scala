@@ -62,7 +62,7 @@ class DynamicAccessor(private val obj: AnyRef) extends AnyVal with Dynamic {
 
   def applyDynamic(name: String)(args: Any*): AnyRef = {
     val method =
-      Iterator.iterate(obj.getClass)(_.getSuperclass)
+      Iterator.iterate[Class[?]](obj.getClass)(_.getSuperclass)
         .takeWhile(_ != null)
         .flatMap(_.getDeclaredMethods.find { m =>
           !Modifier.isStatic(m.getModifiers) &&

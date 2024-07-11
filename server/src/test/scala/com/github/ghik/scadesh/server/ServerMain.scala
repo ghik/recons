@@ -9,7 +9,7 @@ object Thinger {
 class Thinger {
   private val priv = "priv"
 
-  private def privUpper(arg: String): String = priv.toUpperCase + arg
+  private def privUpper(arg: String): String = priv + arg.toUpperCase
 
   def foo: Int = 42
 }
