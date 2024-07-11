@@ -6,7 +6,11 @@ import scala.language.dynamics
 
 class StaticsDynamicAccessor(private val cls: Class[?]) extends AnyVal with Dynamic {
   def selectDynamic(name: String): AnyRef = {
-    val field = cls.getDeclaredField(name)
+    val field =
+      Option(cls.getDeclaredField(name))
+        .filter(f => Modifier.isStatic(f.getModifiers))
+        .getOrElse(throw new NoSuchFieldException(name))
+
     field.setAccessible(true)
     field.get(null)
   }
