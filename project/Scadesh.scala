@@ -4,6 +4,7 @@ import sbt.*
 import sbt.Keys.*
 import sbtghactions.GenerativePlugin.autoImport.*
 import sbtide.Keys.*
+import xerial.sbt.Sonatype.autoImport.*
 
 object Scadesh extends ProjectGroup("scadesh") {
   override def globalSettings: Seq[Def.Setting[?]] = Seq(
@@ -69,6 +70,10 @@ object Scadesh extends ProjectGroup("scadesh") {
         case "3" => Seq()
       }
     },
+
+    publishMavenStyle := true,
+    pomIncludeRepository := { _ => false },
+    publishTo := sonatypePublishToBundle.value,
 
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % Version.Scalatest % Test,
