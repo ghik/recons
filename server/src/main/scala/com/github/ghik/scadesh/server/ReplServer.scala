@@ -2,12 +2,13 @@ package com.github.ghik.scadesh
 package server
 
 import java.io.{Closeable, File}
-import java.net.{ServerSocket, Socket, SocketException}
+import java.net.{InetAddress, ServerSocket, Socket, SocketException}
 import scala.util.{Failure, Success, Try}
 
 class ReplServer(
   classpath: Seq[String],
-  port: Int = ReplServer.DefaultPort,
+  bindAddress: String = ReplServer.DefaultBindAddress,
+  bindPort: Int = ReplServer.DefaultPort,
   initCode: String = "",
   bindings: Map[String, ReplBinding] = Map.empty,
 ) extends Closeable {
@@ -15,7 +16,7 @@ class ReplServer(
     require(!name.contains('`'), s"Invalid binding name: $name")
   }
 
-  private val socket = new ServerSocket(port)
+  private val socket = new ServerSocket(bindPort, 0, InetAddress.getByName(bindAddress))
 
   def run(): Unit = {
     while (!socket.isClosed) {
@@ -38,5 +39,6 @@ class ReplServer(
   }
 }
 object ReplServer {
+  final val DefaultBindAddress = "localhost"
   final val DefaultPort = 6666
 }
