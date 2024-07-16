@@ -104,4 +104,9 @@ jobs:
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        run: sbt ci-release
+        run: sbt buildClientBinary ci-release
+
+      - name: Upload client binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: client/target/universal/scadesh-client-*.zip

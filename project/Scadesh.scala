@@ -1,5 +1,7 @@
 import com.github.ghik.sbt.nosbt.ProjectGroup
+import com.typesafe.sbt.SbtNativePackager.autoImport.*
 import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
+import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport.*
 import sbt.*
 import sbt.Keys.*
 import sbtghactions.GenerativePlugin.autoImport.*
@@ -7,6 +9,8 @@ import sbtide.Keys.*
 import xerial.sbt.Sonatype.autoImport.*
 
 object Scadesh extends ProjectGroup("scadesh") {
+  val buildClientBinary = taskKey[File]("Builds client binary")
+
   override def globalSettings: Seq[Def.Setting[?]] = Seq(
     excludeLintKeys ++= Set(ideBasePackages, projectInfo),
   )
@@ -19,15 +23,27 @@ object Scadesh extends ProjectGroup("scadesh") {
     githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17")),
     githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v"))),
 
-    githubWorkflowPublish := Seq(WorkflowStep.Sbt(
-      List("ci-release"),
-      env = Map(
-        "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}",
-        "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
-        "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}",
-        "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}",
+    githubWorkflowPublish := Seq(
+      WorkflowStep.Sbt(
+        List("buildClientBinary", "ci-release"),
+        env = Map(
+          "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}",
+          "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
+          "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}",
+          "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}",
+        ),
       ),
-    )),
+      WorkflowStep.Use(
+        UseRef.Public("softprops", "action-gh-release", "v2"),
+        name = Some("Upload client binary"),
+        params = Map(
+          "files" -> {
+            val binaryDir = (client / Universal / target).value.relativeTo(baseDirectory.value).get
+            s"${binaryDir.getPath}/scadesh-client-*.zip"
+          },
+        ),
+      ),
+    ),
   )
 
   override def commonSettings: Seq[Def.Setting[?]] = Seq(
@@ -86,6 +102,7 @@ object Scadesh extends ProjectGroup("scadesh") {
     .aggregate(core, server, client)
     .settings(
       publish / skip := true,
+      buildClientBinary := (client / Universal / packageBin).value,
     )
 
   lazy val core = mkSubProject
@@ -113,6 +130,9 @@ object Scadesh extends ProjectGroup("scadesh") {
   lazy val client = mkSubProject
     .dependsOn(core % CompileAndTest)
     .enablePlugins(JavaAppPackaging)
+    .settings(
+      Universal / maintainer := "romeqjanoosh@gmail.com",
+    )
 }
 
 object Version {
