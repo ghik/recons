@@ -16,8 +16,7 @@ Scadesh hasn't been built for it yet).
 To embed Scadesh into your application, add the following dependency to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.github.ghik" % "scadesh-server" % VERSION % cross CrossVersion
-.full
+libraryDependencies += "com.github.ghik" % "scadesh-server" % VERSION % cross CrossVersion.full
 ```
 
 ### Determining the classpath
