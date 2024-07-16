@@ -32,6 +32,7 @@ object Scadesh extends ProjectGroup("scadesh") {
   override def commonSettings: Seq[Def.Setting[?]] = Seq(
     crossVersion := CrossVersion.full,
 
+    organization := "com.github.ghik",
     ideBasePackages := Seq("com.github.ghik.scadesh"),
     Compile / doc / sources := Nil,
 
