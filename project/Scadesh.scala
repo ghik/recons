@@ -2,19 +2,58 @@ import com.github.ghik.sbt.nosbt.ProjectGroup
 import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
 import sbt.*
 import sbt.Keys.*
+import sbtghactions.GenerativePlugin.autoImport.*
 import sbtide.Keys.*
 
 object Scadesh extends ProjectGroup("scadesh") {
   override def globalSettings: Seq[Def.Setting[?]] = Seq(
-    excludeLintKeys += ideBasePackages,
+    excludeLintKeys ++= Set(ideBasePackages, projectInfo),
+  )
+
+  override def buildSettings: Seq[Def.Setting[?]] = Seq(
+    crossScalaVersions := Seq(Version.Scala2, Version.Scala3),
+    scalaVersion := Version.Scala3,
+
+    githubWorkflowTargetTags ++= Seq("v*"),
+    githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17")),
+    githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v"))),
+
+    githubWorkflowPublish := Seq(WorkflowStep.Sbt(
+      List("ci-release"),
+      env = Map(
+        "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}",
+        "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
+        "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}",
+        "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}",
+      ),
+    )),
   )
 
   override def commonSettings: Seq[Def.Setting[?]] = Seq(
     crossVersion := CrossVersion.full,
-    crossScalaVersions := Seq(Version.Scala2, Version.Scala3),
-    scalaVersion := Version.Scala3,
+
     ideBasePackages := Seq("com.github.ghik.scadesh"),
     Compile / doc / sources := Nil,
+
+    projectInfo := ModuleInfo(
+      nameFormal = "Scadesh",
+      description = "Scala Debug Shell",
+      homepage = Some(url("https://github.com/ghik/scadesh")),
+      startYear = Some(2024),
+      licenses = Vector(
+        "Apache License, Version 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0"),
+      ),
+      organizationName = "ghik",
+      organizationHomepage = Some(url("https://github.com/ghik")),
+      scmInfo = Some(ScmInfo(
+        browseUrl = url("https://github.com/ghik/scadesh.git"),
+        connection = "scm:git:git@github.com:ghik/scadesh.git",
+        devConnection = Some("scm:git:git@github.com:ghik/scadesh.git"),
+      )),
+      developers = Vector(
+        Developer("ghik", "Roman Janusz", "romeqjanoosh@gmail.com", url("https://github.com/ghik")),
+      ),
+    ),
 
     Compile / scalacOptions ++= Seq(
       "-encoding", "utf-8",
