@@ -19,6 +19,10 @@ object Scadesh extends ProjectGroup("scadesh") {
     crossScalaVersions := Seq(Version.Scala2, Version.Scala3),
     scalaVersion := Version.Scala3,
 
+    githubWorkflowPermissions := Some(Permissions.Specify(Map(
+      PermissionScope.Contents -> PermissionValue.Write,
+    ))),
+
     githubWorkflowTargetTags ++= Seq("v*"),
     githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17")),
     githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v"))),
