@@ -56,8 +56,8 @@ the client binary. You can download it from a [Scadesh release](https://github.c
 on GitHub.
 
 ```shell
-SCADESH_VERSION=<desired version>
-SCALA_VERSION=<desired version>
+SCADESH_VERSION=<desired scadesh version>
+SCALA_VERSION=<desired scala version>
 
 package=scadesh-client_$SCALA_VERSION-$SCADESH_VERSION
 wget https://github.com/ghik/scadesh/releases/download/v$SCADESH_VERSION/$package.zip
