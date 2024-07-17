@@ -26,17 +26,18 @@ Typically, you can obtain the classpath of your JVM process from the `java.class
 property:
 
 ```scala
-val classpath = sys.props("java.class.path").split(File.pathSeparator).toSeq
+sys.props("java.class.path").split(File.pathSeparator).toSeq
 ```
 
 > [!WARNING]
 > Depending on the exact way your application is launched, you may not be able to rely on
-> the `java.class.path` system property - it may be unset or set to an incomplete or wrong
-> value. You may need another way to determine it.
+> the `java.class.path` system property - it may be unset or set to an incorrect value (for the
+> REPL server needs). You may need another way to determine the classpath.
 
 ### Launching the server
 
 ```scala
+import java.io.File
 import com.github.ghik.scadesh.server.*
 
 val server = new ReplServer(
@@ -51,10 +52,21 @@ server.run()
 ### Connecting to the server
 
 In order to connect to the REPL server running inside your application, you need to use
-the client binary. You can build it from this repository:
+the client binary. You can download it from a [Scadesh release](https://github.com/ghik/scadesh/releases) 
+on GitHub.
 
 ```shell
-git clone https://github.com/ghik/scadesh
-cd scadesh
-sbt scadesh-client/Universal/packageBin
+SCADESH_VERSION=<desired version>
+SCALA_VERSION=<desired version>
+
+package=scadesh-client_$SCALA_VERSION-$SCADESH_VERSION
+wget https://github.com/ghik/scadesh/releases/download/v$SCADESH_VERSION/$package.zip
+unzip $package.zip && cd $package
 ```
+
+Then, run the client to connect to the server:
+```
+./bin/scadesh-client localhost 6666
+```
+
+and you should be able to see a fully-featured Scala REPL.
