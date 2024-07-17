@@ -30,7 +30,7 @@ object Scadesh extends ProjectGroup("scadesh") {
 
     githubWorkflowPublish := Seq(
       WorkflowStep.Sbt(
-        List("+buildClientBinary"),
+        List("+buildClientBinary", "ci-release"),
         env = Map(
           "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}",
           "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
