@@ -19,6 +19,7 @@ object Scadesh extends ProjectGroup("scadesh") {
     crossScalaVersions := Seq(Version.Scala2, Version.Scala3),
     scalaVersion := Version.Scala3,
 
+    // needed by `action-gh-release`
     githubWorkflowPermissions := Some(Permissions.Specify(Map(
       PermissionScope.Contents -> PermissionValue.Write,
     ))),
@@ -43,7 +44,7 @@ object Scadesh extends ProjectGroup("scadesh") {
         params = Map(
           "files" -> {
             val binaryDir = (client / Universal / target).value.relativeTo(baseDirectory.value).get
-            s"${binaryDir.getPath}/scadesh-client-*.zip"
+            s"${binaryDir.getPath}/*"
           },
         ),
       ),
