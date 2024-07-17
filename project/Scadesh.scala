@@ -136,6 +136,7 @@ object Scadesh extends ProjectGroup("scadesh") {
     .enablePlugins(JavaAppPackaging)
     .settings(
       Universal / maintainer := "romeqjanoosh@gmail.com",
+      Universal / packageName := s"scadesh-client_${scalaVersion.value}-${version.value}",
     )
 }
 
