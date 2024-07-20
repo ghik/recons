@@ -5,7 +5,6 @@ import com.github.ghik.scadesh.core.CommonDefaults
 import com.github.ghik.scadesh.core.utils.PkiUtils
 import org.apache.commons.cli.{DefaultParser, Options, Option as CliOption}
 
-import java.io.File
 import java.net.Socket
 import java.security.PrivateKey
 import java.security.cert.X509Certificate
@@ -57,7 +56,10 @@ object ReplClient {
         val cacert = cmdLine.getParsedOptionValue[X509Certificate](Options.cacert)
         val cert = cmdLine.getParsedOptionValue[X509Certificate](Options.cert)
         val key = cmdLine.getParsedOptionValue[PrivateKey](Options.key)
-        val sslContext = PkiUtils.sslContext(cacert, cert, key)
+        val sslContext = PkiUtils.sslContext(
+          if (cert != null && key != null) PkiUtils.keyManagersForSingleCert(cert, key) else null,
+          if (cert != null) PkiUtils.trustManagersForSingleCert(cacert) else null,
+        )
         sslContext.getSocketFactory.createSocket(host, port)
       }
 

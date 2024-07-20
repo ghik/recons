@@ -4,6 +4,7 @@ package server
 import com.github.ghik.scadesh.core.utils.PkiUtils
 
 import java.io.File
+import javax.net.ssl.SSLParameters
 
 object Thinger {
   private def staticMaybe(str: String): String = str.toUpperCase
@@ -31,7 +32,10 @@ object ServerMain {
     val caCert = PkiUtils.loadPemCert("/Users/rjghik/kubenet/auth/ca.pem")
     val serverCert = PkiUtils.loadPemCert("/Users/rjghik/kubenet/auth/kubernetes.pem")
     val serverKey = PkiUtils.loadPemKey("/Users/rjghik/kubenet/auth/kubernetes-key.pem")
-    val sslContext = PkiUtils.sslContext(caCert, serverCert, serverKey)
+    val sslContext = PkiUtils.sslContext(
+      PkiUtils.keyManagersForSingleCert(serverCert, serverKey),
+      PkiUtils.trustManagersForSingleCert(caCert),
+    )
 
     new ReplServer(
       classpath,

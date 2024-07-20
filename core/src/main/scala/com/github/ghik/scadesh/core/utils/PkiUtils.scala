@@ -51,13 +51,12 @@ object PkiUtils {
     tmf.getTrustManagers
   }
 
-  def sslContext(cacert: X509Certificate, cert: X509Certificate, key: PrivateKey): SSLContext = {
+  def sslContext(
+    keyManagers: Array[KeyManager],
+    trustManagers: Array[TrustManager],
+  ): SSLContext = {
     val sslContext = SSLContext.getInstance("TLS")
-    sslContext.init(
-      keyManagersForSingleCert(cert, key),
-      trustManagersForSingleCert(cacert),
-      null,
-    )
+    sslContext.init(keyManagers, trustManagers, null)
     sslContext
   }
 }
