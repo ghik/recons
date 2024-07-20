@@ -24,16 +24,13 @@ class RemoteReplRunner private(
   settings: Array[String],
   comm: ServerCommunicator,
   out: PrintStream,
-  bindings: Map[String, ReplBinding],
-  initCode: String,
+  config: ReplConfig,
 ) extends ReplDriver(settings, out, Some(classOf[RemoteReplRunner].getClassLoader)) { self =>
   override protected def redirectOutput: Boolean = false
 
   // implementation copied from superclass, only with JLineTerminal replaced by RemoteTerminal
   override def runUntilQuit(using initialState: State)(): State = {
-    out.println(
-      s"""Welcome to Debug Shell, based on Scala $simpleVersionString ($javaVersion, Java $javaVmName).
-         |Type in expressions for evaluation. Or try :help.""".stripMargin)
+    out.println(config.welcome)
 
     /** Blockingly read a line, getting back a parse result */
     def readLine()(using state: State): ParseResult = {
@@ -64,9 +61,9 @@ class RemoteReplRunner private(
       else loop(using interpret(res))()
     }
 
-    val fullBindings = Map("$ext" -> ReplBinding.forClass(new ShellExtensions(out))) ++ bindings
+    val fullBindings = Map("$ext" -> ReplBinding.forClass(new ShellExtensions(out))) ++ config.bindings
     val bindingDecls = ReplBindingHelpers.declarations(fullBindings)
-    val fullInitCode = List(bindingDecls, "import $ext.*", initCode)
+    val fullInitCode = List(bindingDecls, "import $ext.*", config.initCode)
       .filter(_.nonEmpty).mkString("\n")
 
     def interpretInit(using state: State)(): State =
@@ -161,12 +158,11 @@ object RemoteReplRunner {
   def run(
     settings: Array[String],
     socket: Socket,
-    bindings: Map[String, ReplBinding],
-    initCode: String,
+    config: ReplConfig,
   ): Unit = {
     val comm = new ServerCommunicator(socket)
     val out = new CommunicatorPrintStream(comm)
-    new RemoteReplRunner(settings, comm, out, bindings, initCode).tryRunning
+    new RemoteReplRunner(settings, comm, out, config).tryRunning
   }
 
   private val commands: List[String] = List(

@@ -16,26 +16,26 @@ object RemoteReplRunner {
   def run(
     args: Array[String],
     socket: Socket,
-    bindings: Map[String, ReplBinding],
-    initCode: String,
+    config: ReplConfig,
   ): Unit = {
     val comm = new ServerCommunicator(socket)
     val out = new PrintWriter(new CommunicatorOutputStream(comm))
     val settings = new GenericRunnerSettings(s => if (s.nonEmpty) out.println(s))
     settings.processArguments(args.toList, processAll = false)
     System.setProperty("scala.color", "true")
-    val config: ShellConfig = ShellConfig(settings)
-    new RemoteReplRunner(comm, config, out, bindings, initCode).run(settings)
+    val shellConfig: ShellConfig = ShellConfig(settings)
+    new RemoteReplRunner(comm, shellConfig, out, config).run(settings)
   }
 }
 class RemoteReplRunner(
   comm: ServerCommunicator,
-  config: ShellConfig,
+  shellConfig: ShellConfig,
   out: PrintWriter,
-  bindings: Map[String, ReplBinding],
-  initCode: String,
-) extends ILoop(config, out = new PrintWriter(out)) {
+  config: ReplConfig,
+) extends ILoop(shellConfig, out = new PrintWriter(out)) {
   private var initialized = false
+
+  override def welcome: String = config.welcome
 
   override def createInterpreter(interpreterSettings: Settings): Unit = {
     super.createInterpreter(interpreterSettings)
@@ -58,7 +58,7 @@ class RemoteReplRunner(
       val accumulator = new Accumulator
       // must do this after `intp` is set by super call, because `completion` needs it
       val completer = completion(accumulator)
-      deafultInField.set(this, new RemoteReader(comm, accumulator, completer, initCode))
+      deafultInField.set(this, new RemoteReader(comm, accumulator, completer, config.initCode))
 
       val parser = new ScalaParser(intp)
 
@@ -80,7 +80,7 @@ class RemoteReplRunner(
         classOf[ShellExtensions].getName,
         new ShellExtensions(new CommunicatorPrintStream(comm)),
       )
-      bindings.foreach {
+      config.bindings.foreach {
         case (name, ReplBinding(staticType, value)) =>
           intp.bind(name, staticType, value)
       }

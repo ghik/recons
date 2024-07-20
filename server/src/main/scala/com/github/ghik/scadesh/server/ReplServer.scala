@@ -9,12 +9,8 @@ class ReplServer(
   classpath: Seq[String],
   bindAddress: String = ReplServer.DefaultBindAddress,
   bindPort: Int = ReplServer.DefaultPort,
-  initCode: String = "",
-  bindings: Map[String, ReplBinding] = Map.empty,
+  config: ReplConfig = ReplConfig.Default,
 ) extends Closeable {
-  bindings.keys.foreach { name =>
-    require(!name.contains('`'), s"Invalid binding name: $name")
-  }
 
   private val socket = new ServerSocket(bindPort, 0, InetAddress.getByName(bindAddress))
 
@@ -34,7 +30,7 @@ class ReplServer(
   private class ReplThread(client: Socket) extends Thread {
     override def run(): Unit = {
       val settings = Array("-cp", classpath.mkString(File.pathSeparator))
-      RemoteReplRunner.run(settings, client, bindings, initCode)
+      RemoteReplRunner.run(settings, client, config)
     }
   }
 }

@@ -23,11 +23,9 @@ object ServerMain {
     val initCode =
       """
         |import java.io._
-        |
-        |val x = 50
-        |val str = x.toString
+        |import thinger._
         |""".stripMargin
 
-    new ReplServer(classpath, bindings = bindings, initCode = initCode).run()
+    new ReplServer(classpath, config = ReplConfig(bindings = bindings, initCode = initCode)).run()
   }
 }
