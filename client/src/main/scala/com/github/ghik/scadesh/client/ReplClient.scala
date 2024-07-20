@@ -1,6 +1,7 @@
 package com.github.ghik.scadesh
 package client
 
+import com.github.ghik.scadesh.core.CommonDefaults
 import org.apache.commons.cli.{DefaultParser, Options, Option as CliOption}
 
 import java.net.Socket
@@ -16,8 +17,8 @@ object ReplClient {
   def main(args: Array[String]): Unit = {
     val cmdLine = new DefaultParser().parse(options, args)
 
-    val host = cmdLine.getOptionValue(hostOption, "localhost")
-    val port = cmdLine.getOptionValue(portOption, "6666").toInt
+    val host = cmdLine.getOptionValue(hostOption, CommonDefaults.DefaultAddress)
+    val port = Option(cmdLine.getOptionValue(portOption)).fold(CommonDefaults.DefaultPort)(_.toInt)
     val socket = new Socket(host, port)
     TerminalRunner.run(socket)
   }

@@ -1,14 +1,16 @@
 package com.github.ghik.scadesh
 package server
 
+import com.github.ghik.scadesh.core.CommonDefaults
+
 import java.io.{Closeable, File}
 import java.net.{InetAddress, ServerSocket, Socket, SocketException}
 import scala.util.{Failure, Success, Try}
 
 class ReplServer(
   classpath: Seq[String],
-  bindAddress: String = ReplServer.DefaultBindAddress,
-  bindPort: Int = ReplServer.DefaultPort,
+  bindAddress: String = CommonDefaults.DefaultAddress,
+  bindPort: Int = CommonDefaults.DefaultPort,
   config: ReplConfig = ReplConfig.Default,
 ) extends Closeable {
 
@@ -33,8 +35,4 @@ class ReplServer(
       RemoteReplRunner.run(settings, client, config)
     }
   }
-}
-object ReplServer {
-  final val DefaultBindAddress = "127.0.0.1"
-  final val DefaultPort = 6666
 }
