@@ -66,7 +66,7 @@ unzip $package.zip && cd $package
 
 Then, run the client to connect to the server:
 ```
-./bin/scadesh-client localhost 6666
+./bin/scadesh-client -h localhost -p 6666
 ```
 
 and you should be able to see a fully-featured Scala REPL, e.g.

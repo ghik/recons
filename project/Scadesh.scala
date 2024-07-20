@@ -17,7 +17,7 @@ object Scadesh extends ProjectGroup("scadesh") {
 
   override def buildSettings: Seq[Def.Setting[?]] = Seq(
     crossScalaVersions := Seq(Version.Scala2, Version.Scala3),
-    scalaVersion := Version.Scala3,
+    scalaVersion := Version.Scala2,
 
     // needed by `action-gh-release`
     githubWorkflowPermissions := Some(Permissions.Specify(Map(
@@ -138,6 +138,10 @@ object Scadesh extends ProjectGroup("scadesh") {
     .settings(
       Universal / maintainer := "romeqjanoosh@gmail.com",
       Universal / packageName := s"scadesh-client_${scalaVersion.value}-${version.value}",
+
+      libraryDependencies ++= Seq(
+        "commons-cli" % "commons-cli" % Version.CommonsCli,
+      ),
     )
 }
 
@@ -145,4 +149,5 @@ object Version {
   final val Scala2 = "2.13.14"
   final val Scala3 = "3.4.2"
   final val Scalatest = "3.2.18"
+  final val CommonsCli = "1.8.0"
 }
