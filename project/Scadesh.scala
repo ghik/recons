@@ -17,7 +17,7 @@ object Scadesh extends ProjectGroup("scadesh") {
 
   override def buildSettings: Seq[Def.Setting[?]] = Seq(
     crossScalaVersions := Seq(Version.Scala2, Version.Scala3),
-    scalaVersion := Version.Scala2,
+    scalaVersion := Version.Scala3,
 
     // needed by `action-gh-release`
     githubWorkflowPermissions := Some(Permissions.Specify(Map(
