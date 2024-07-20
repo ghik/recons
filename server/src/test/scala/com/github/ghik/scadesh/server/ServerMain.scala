@@ -26,6 +26,10 @@ object ServerMain {
         |import thinger._
         |""".stripMargin
 
-    new ReplServer(classpath, config = ReplConfig(bindings = bindings, initCode = initCode)).run()
+    new ReplServer(
+      classpath,
+      tlsConfig = None,
+      replConfig = ReplConfig(bindings = bindings, initCode = initCode),
+    ).run()
   }
 }

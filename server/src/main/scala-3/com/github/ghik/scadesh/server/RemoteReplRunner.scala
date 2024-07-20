@@ -23,13 +23,13 @@ class RemoteReplRunner private(
   settings: Array[String],
   comm: ServerCommunicator,
   out: PrintStream,
-  config: ReplConfig,
+  replConfig: ReplConfig,
 ) extends ReplDriver(settings, out, Some(classOf[RemoteReplRunner].getClassLoader)) { self =>
   override protected def redirectOutput: Boolean = false
 
   // implementation copied from superclass, only with JLineTerminal replaced by RemoteTerminal
   override def runUntilQuit(using initialState: State)(): State = {
-    out.println(config.welcome)
+    out.println(replConfig.welcome)
 
     /** Blockingly read a line, getting back a parse result */
     def readLine()(using state: State): ParseResult = {
@@ -49,7 +49,7 @@ class RemoteReplRunner private(
         }
       })
 
-      comm.sendCommand(TerminalCommand.ReadLine("\n" + blue(config.prompt)))
+      comm.sendCommand(TerminalCommand.ReadLine("\n" + blue(replConfig.prompt)))
         .map(ParseResult(_))
         .getOrElse(Quit)
     }
@@ -60,9 +60,9 @@ class RemoteReplRunner private(
       else loop(using interpret(res))()
     }
 
-    val fullBindings = Map("$ext" -> ReplBinding.forClass(new ShellExtensions(out))) ++ config.bindings
+    val fullBindings = Map("$ext" -> ReplBinding.forClass(new ShellExtensions(out))) ++ replConfig.bindings
     val bindingDecls = ReplBindingHelpers.declarations(fullBindings)
-    val fullInitCode = List(bindingDecls, "import $ext.*", config.initCode)
+    val fullInitCode = List(bindingDecls, "import $ext.*", replConfig.initCode)
       .filter(_.nonEmpty).mkString("\n")
 
     def interpretInit(using state: State)(): State =

@@ -16,7 +16,7 @@ object RemoteReplRunner {
   def run(
     args: Array[String],
     socket: Socket,
-    config: ReplConfig,
+    replConfig: ReplConfig,
   ): Unit = {
     val comm = new ServerCommunicator(socket)
     val out = new PrintWriter(new CommunicatorOutputStream(comm))
@@ -24,21 +24,21 @@ object RemoteReplRunner {
     settings.processArguments(args.toList, processAll = false)
     System.setProperty("scala.color", "true")
     val shellConfig: ShellConfig = ShellConfig(settings)
-    new RemoteReplRunner(comm, shellConfig, out, config).run(settings)
+    new RemoteReplRunner(comm, shellConfig, out, replConfig).run(settings)
   }
 }
 class RemoteReplRunner(
   comm: ServerCommunicator,
   shellConfig: ShellConfig,
   out: PrintWriter,
-  config: ReplConfig,
+  replConfig: ReplConfig,
 ) extends ILoop(shellConfig, out = new PrintWriter(out)) {
   private var initialized = false
 
-  override def welcome: String = config.welcome
+  override def welcome: String = replConfig.welcome
 
   override lazy val prompt: String =
-    shellConfig.encolor("\n" + config.prompt)
+    shellConfig.encolor("\n" + replConfig.prompt)
 
   override def createInterpreter(interpreterSettings: Settings): Unit = {
     super.createInterpreter(interpreterSettings)
@@ -61,7 +61,7 @@ class RemoteReplRunner(
       val accumulator = new Accumulator
       // must do this after `intp` is set by super call, because `completion` needs it
       val completer = completion(accumulator)
-      deafultInField.set(this, new RemoteReader(comm, accumulator, completer, config.initCode))
+      deafultInField.set(this, new RemoteReader(comm, accumulator, completer, replConfig.initCode))
 
       val parser = new ScalaParser(intp)
 
@@ -83,7 +83,7 @@ class RemoteReplRunner(
         classOf[ShellExtensions].getName,
         new ShellExtensions(new CommunicatorPrintStream(comm)),
       )
-      config.bindings.foreach {
+      replConfig.bindings.foreach {
         case (name, ReplBinding(staticType, value)) =>
           intp.bind(name, staticType, value)
       }

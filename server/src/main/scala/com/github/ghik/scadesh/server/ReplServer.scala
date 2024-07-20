@@ -5,16 +5,29 @@ import com.github.ghik.scadesh.core.CommonDefaults
 
 import java.io.{Closeable, File}
 import java.net.{InetAddress, ServerSocket, Socket, SocketException}
+import javax.net.ssl.SSLServerSocket
 import scala.util.{Failure, Success, Try}
 
-class ReplServer(
+final class ReplServer(
   classpath: Seq[String],
+  tlsConfig: Option[TlsConfig],
   bindAddress: String = CommonDefaults.DefaultAddress,
   bindPort: Int = CommonDefaults.DefaultPort,
-  config: ReplConfig = ReplConfig.Default,
+  replConfig: ReplConfig = ReplConfig.Default,
 ) extends Closeable {
 
-  private val socket = new ServerSocket(bindPort, 0, InetAddress.getByName(bindAddress))
+  private val bindAddr = InetAddress.getByName(bindAddress)
+
+  private val socket: ServerSocket = tlsConfig match {
+    case None =>
+      new ServerSocket(bindPort, 0, bindAddr)
+    case Some(tlsConfig) =>
+      val sock = tlsConfig.sslContext.getServerSocketFactory
+        .createServerSocket(bindPort, 0, bindAddr)
+        .asInstanceOf[SSLServerSocket]
+      tlsConfig.sslParameters.foreach(sock.setSSLParameters)
+      sock
+  }
 
   def run(): Unit = {
     while (!socket.isClosed) {
@@ -32,7 +45,7 @@ class ReplServer(
   private class ReplThread(client: Socket) extends Thread {
     override def run(): Unit = {
       val settings = Array("-cp", classpath.mkString(File.pathSeparator))
-      RemoteReplRunner.run(settings, client, config)
+      RemoteReplRunner.run(settings, client, replConfig)
     }
   }
 }
