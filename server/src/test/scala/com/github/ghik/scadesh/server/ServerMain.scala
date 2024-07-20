@@ -1,6 +1,8 @@
 package com.github.ghik.scadesh
 package server
 
+import com.github.ghik.scadesh.core.utils.PkiUtils
+
 import java.io.File
 
 object Thinger {
@@ -26,9 +28,14 @@ object ServerMain {
         |import thinger._
         |""".stripMargin
 
+    val caCert = PkiUtils.loadPemCert("/Users/rjghik/kubenet/auth/ca.pem")
+    val serverCert = PkiUtils.loadPemCert("/Users/rjghik/kubenet/auth/kubernetes.pem")
+    val serverKey = PkiUtils.loadPemKey("/Users/rjghik/kubenet/auth/kubernetes-key.pem")
+    val sslContext = PkiUtils.sslContext(caCert, serverCert, serverKey)
+
     new ReplServer(
       classpath,
-      tlsConfig = None,
+      tlsConfig = Some(TlsConfig(sslContext)),
       replConfig = ReplConfig(bindings = bindings, initCode = initCode),
     ).run()
   }

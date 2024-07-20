@@ -117,6 +117,7 @@ object Scadesh extends ProjectGroup("scadesh") {
           case "2.13" => "org.scala-lang" % "scala-compiler" % scalaVersion.value
           case "3" => "org.scala-lang" %% "scala3-compiler" % scalaVersion.value
         },
+        "org.bouncycastle" % "bcpkix-jdk18on" % Version.BouncyCastle,
       ),
     )
 
@@ -150,4 +151,5 @@ object Version {
   final val Scala3 = "3.4.2"
   final val Scalatest = "3.2.18"
   final val CommonsCli = "1.8.0"
+  final val BouncyCastle = "1.78.1"
 }
