@@ -3,7 +3,6 @@ package server
 
 import com.github.ghik.scadesh.core.{ParsedLine, *}
 import com.github.ghik.scadesh.server.utils.ShellExtensions
-import dotty.tools.dotc.config.Properties.{javaVersion, javaVmName, simpleVersionString}
 import dotty.tools.dotc.core.Contexts.*
 import dotty.tools.dotc.parsing.Scanners.Scanner
 import dotty.tools.dotc.parsing.Tokens.*
@@ -50,7 +49,7 @@ class RemoteReplRunner private(
         }
       })
 
-      comm.sendCommand(TerminalCommand.ReadLine)
+      comm.sendCommand(TerminalCommand.ReadLine("\n" + blue(config.prompt)))
         .map(ParseResult(_))
         .getOrElse(Quit)
     }

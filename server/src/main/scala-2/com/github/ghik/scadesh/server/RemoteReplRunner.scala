@@ -37,6 +37,9 @@ class RemoteReplRunner(
 
   override def welcome: String = config.welcome
 
+  override lazy val prompt: String =
+    shellConfig.encolor("\n" + config.prompt)
+
   override def createInterpreter(interpreterSettings: Settings): Unit = {
     super.createInterpreter(interpreterSettings)
 

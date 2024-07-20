@@ -26,8 +26,8 @@ class TerminalRunner(socket: Socket) {
 
   comm.setCommandHandler(new comm.CommandHandler {
     def handleCommand[T](cmd: TerminalCommand[T]): T = cmd match {
-      case TerminalCommand.ReadLine =>
-        try Option(readLine()) catch {
+      case TerminalCommand.ReadLine(prompt) =>
+        try Option(readLine(prompt)) catch {
           case _: EndOfFileException | _: UserInterruptException => None
         }
       case TerminalCommand.Write(data) =>
@@ -115,12 +115,6 @@ class TerminalRunner(socket: Socket) {
       }
   }
 
-  protected def promptStr = "scala"
-
-  private def blue(str: String) = Console.BLUE + str + Console.RESET
-  private def prompt = blue(s"\n$promptStr> ")
-  private def newLinePrompt = blue("     | ")
-
   /** Blockingly read line from `System.in`
    *
    * This entry point into JLine handles everything to do with terminal
@@ -134,7 +128,7 @@ class TerminalRunner(socket: Socket) {
    *
    * @throws EndOfFileException This exception is thrown when the user types Ctrl-D.
    */
-  def readLine(): String = {
+  def readLine(prompt: String): String = {
     import LineReader.*
     import LineReader.Option.*
 
