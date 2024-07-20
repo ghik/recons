@@ -31,7 +31,7 @@ class ReplServer(
   def close(): Unit =
     socket.close()
 
-  class ReplThread(client: Socket) extends Thread {
+  private class ReplThread(client: Socket) extends Thread {
     override def run(): Unit = {
       val settings = Array("-cp", classpath.mkString(File.pathSeparator))
       RemoteReplRunner.run(settings, client, bindings, initCode)
@@ -39,6 +39,6 @@ class ReplServer(
   }
 }
 object ReplServer {
-  final val DefaultBindAddress = "localhost"
+  final val DefaultBindAddress = "127.0.0.1"
   final val DefaultPort = 6666
 }
