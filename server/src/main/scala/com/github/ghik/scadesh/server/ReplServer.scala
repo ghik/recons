@@ -9,7 +9,7 @@ import javax.net.ssl.SSLServerSocket
 import scala.util.{Failure, Success, Try}
 
 /**
- * A remote Scala REPL server. Each incoming connection, and a REPL session associate with it, 
+ * A remote Scala REPL server. Each incoming connection, and a REPL session associated with it, 
  * is handled by a separate thread.
  *
  * @param classpath   The classpath used by REPL's Scala compiler.

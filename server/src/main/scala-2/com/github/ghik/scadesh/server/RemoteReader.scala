@@ -3,7 +3,7 @@ package server
 
 import com.github.ghik.scadesh.core.TerminalCommand
 import com.github.ghik.scadesh.server.utils.ShellExtensions
-import org.jline.reader._
+import org.jline.reader.*
 
 import scala.tools.nsc.interpreter.shell
 import scala.tools.nsc.interpreter.shell.{Accumulator, NoHistory}
@@ -14,7 +14,7 @@ class RemoteReader(
   comm: ServerCommunicator,
   val accumulator: Accumulator,
   val completion: shell.Completion,
-  initCode: String,
+  replConfig: ReplConfig,
 ) extends shell.InteractiveReader {
   // `scala.tools.nsc.interpreter.jline.Reader` currently uses `HistoryAdaptor`, which does nothing and is marked as TODO.
   // It's unclear why server side needs history at all, this should be a terminal-only, client-side thing.
@@ -26,7 +26,8 @@ class RemoteReader(
   protected def readOneLine(prompt: String): String =
     if (!initLoaded) {
       initLoaded = true
-      s"import ${ShellExtensions.BindingName}._\n$initCode"
+      val maybeImportExt = if (replConfig.useExtensions) s"import ${ShellExtensions.BindingName}.*" else ""
+      List(maybeImportExt, replConfig.initCode).filter(_.nonEmpty).mkString("\n")
     } else {
       comm.sendCommand(TerminalCommand.ReadLine(prompt)).orNull
     }

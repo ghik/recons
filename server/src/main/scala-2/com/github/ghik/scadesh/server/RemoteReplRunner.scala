@@ -61,7 +61,7 @@ class RemoteReplRunner(
       val accumulator = new Accumulator
       // must do this after `intp` is set by super call, because `completion` needs it
       val completer = completion(accumulator)
-      deafultInField.set(this, new RemoteReader(comm, accumulator, completer, replConfig.initCode))
+      deafultInField.set(this, new RemoteReader(comm, accumulator, completer, replConfig))
 
       val parser = new ScalaParser(intp)
 
@@ -78,11 +78,13 @@ class RemoteReplRunner(
         }
       })
 
-      intp.bind(
-        ShellExtensions.BindingName,
-        classOf[ShellExtensions].getName,
-        new ShellExtensions(new CommunicatorPrintStream(comm)),
-      )
+      if (replConfig.useExtensions) {
+        intp.bind(
+          ShellExtensions.BindingName,
+          classOf[ShellExtensions].getName,
+          new ShellExtensions(new CommunicatorPrintStream(comm)),
+        )
+      }
       replConfig.bindings.foreach {
         case (name, ReplBinding(staticType, value)) =>
           intp.bind(name, staticType, value)

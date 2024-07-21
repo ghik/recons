@@ -60,9 +60,16 @@ class RemoteReplRunner private(
       else loop(using interpret(res))()
     }
 
-    val fullBindings = Map("$ext" -> ReplBinding.forClass(new ShellExtensions(out))) ++ replConfig.bindings
+    val extBinding =
+      if (replConfig.useExtensions)
+        Map("$ext" -> ReplBinding.forClass(new ShellExtensions(out)))
+      else
+        Map.empty
+
+    val fullBindings = extBinding ++ replConfig.bindings
+    val maybeImportExt = if (replConfig.useExtensions) s"import ${ShellExtensions.BindingName}.*" else ""
     val bindingDecls = ReplBindingHelpers.declarations(fullBindings)
-    val fullInitCode = List(bindingDecls, "import $ext.*", replConfig.initCode)
+    val fullInitCode = List(bindingDecls, maybeImportExt, replConfig.initCode)
       .filter(_.nonEmpty).mkString("\n")
 
     def interpretInit(using state: State)(): State =
