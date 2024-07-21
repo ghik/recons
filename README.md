@@ -129,6 +129,8 @@ apply only to code written and compiled directly in the REPL.
 You can also use `out` (a `PrintStream`) to grab direct access to this custom output stream,
 pass it to other functions, etc.
 
+There is currently no way to read client's standard input inside the REPL.
+
 ## Security
 
 Scadesh gives you full access to your application process from outside, and lets you run arbitrary
