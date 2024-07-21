@@ -11,9 +11,9 @@ giving you almost unlimited access to all the guts and internals of your running
 - [Features](#features)
 - [Supported Scala versions](#supported-scala-versions)
 - [Quickstart](#quickstart)
-    - [Determining the classpath](#determining-the-classpath)
-    - [Launching the server](#launching-the-server)
-    - [Connecting to the server](#connecting-to-the-server)
+  - [Determining the classpath](#determining-the-classpath)
+  - [Launching the server](#launching-the-server)
+  - [Connecting to the server](#connecting-to-the-server)
 - [Using standard input and output](#using-standard-input-and-output)
 - [Security](#security)
 - [Troubleshooting utilities](#troubleshooting-utilities)
@@ -122,24 +122,29 @@ This means that the standard input and output of the REPL are not connected to t
 If you invoke `Predef.println` or similar, you will not see the output in the console.
 
 In order to work around this to some extent, Scadesh overrides `println` and `print` methods
-to use a custom output stream, connected to the client. However, these overrides work only
-directly in the REPL. Inside the REPL, you can also refer to `out`, which is a `java.io.PrintStream`
-connected to the client standard output.
+to use a custom output stream, connected to the client. However, remember that these overrides
+apply only to code written and compiled directly in the REPL.
+
+You can also use `out` (a `PrintStream`) to grab direct access to this custom output stream,
+pass it to other functions, etc.
 
 ## Security
 
 Scadesh gives you full access to your application process from outside, and lets you run arbitrary
 code in it. This is an obvious security risk, so you must make sure to limit access to the
-remote REPL, and be extremely careful when using it.
+remote REPL to power users, and be extremely careful about what you execute in it. Otherwise, you may
+crash your process, put a thread into an infinite loop, or corrupt the internal state of your application.
 
 Scadesh binds on localhost address by default. It might make sense to leave it this way, and
-allow access only from the local machine or container/pod (e.g. in Kubernetes you would need to be
-able to execute `kubectl exec` on your application's pods in order to gain access to the REPL).
+allow access only from the local machine or container/pod (e.g. in Kubernetes you would need permissions
+to execute `kubectl exec` on your application's pods in order to gain access to the REPL).
 
 You can also secure client-server communication with TLS:
 
-* `ReplServer` accepts a `TlsConfig` parameters, which allows you to configure a complete
-  `SSLContext` and `SSLParameters` for the server. This effectively allows you to specify (among others):
+* [`ReplServer`](./server/src/main/scala/com/github/ghik/scadesh/server/ReplServer.scala)
+  accepts a [`TlsConfig`](./server/src/main/scala/com/github/ghik/scadesh/server/TlsConfig.scala) parameter,
+  which allows you to configure a complete `SSLContext` and `SSLParameters` for the server.
+  This effectively allows you to specify (among others):
     * the keystore and truststore
     * enabled protocols and cipher suites
     * client authentication
