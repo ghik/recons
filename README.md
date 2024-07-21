@@ -148,7 +148,7 @@ You can also secure client-server communication with TLS:
   accepts a [`TlsConfig`](./server/src/main/scala/com/github/ghik/scadesh/server/TlsConfig.scala) parameter,
   which allows you to configure a complete 
   [`SSLContext`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/javax/net/ssl/SSLContext.html)
-  and [`SSLParameters`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/javax/net/ssl/SSLParameters.html).
+  and [`SSLParameters`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/javax/net/ssl/SSLParameters.html)
   for the server.
   This effectively allows you to specify (among others):
     * the keystore and truststore
