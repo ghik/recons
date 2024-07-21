@@ -3,7 +3,8 @@ package server
 
 import com.github.ghik.scadesh.core.utils.PkiUtils
 
-import java.io.File
+import java.io.{File, InputStreamReader, Reader}
+import java.nio.charset.StandardCharsets
 import javax.net.ssl.SSLParameters
 
 object Thinger {
@@ -29,9 +30,12 @@ object ServerMain {
         |import thinger._
         |""".stripMargin
 
-    val caCert = PkiUtils.loadPemCert("/Users/rjghik/kubenet/auth/ca.pem")
-    val serverCert = PkiUtils.loadPemCert("/Users/rjghik/kubenet/auth/kubernetes.pem")
-    val serverKey = PkiUtils.loadPemKey("/Users/rjghik/kubenet/auth/kubernetes-key.pem")
+    def resourceReader(path: String): Reader =
+      new InputStreamReader(getClass.getClassLoader.getResourceAsStream(path), StandardCharsets.UTF_8)
+
+    val caCert = PkiUtils.loadPemCert(resourceReader("ca.pem"), "resource ca.pem")
+    val serverCert = PkiUtils.loadPemCert(resourceReader("server.pem"), "resource server.pem")
+    val serverKey = PkiUtils.loadPemKey(resourceReader("server-key.pem"), "resource server-key.pem")
     val sslContext = PkiUtils.sslContext(
       PkiUtils.keyManagers(Map("server" -> (serverCert, serverKey))),
       PkiUtils.trustManagers(Map("cacert" -> caCert)),

@@ -3,8 +3,9 @@ package client
 
 import com.github.ghik.scadesh.core.CommonDefaults
 import com.github.ghik.scadesh.core.utils.PkiUtils
-import org.apache.commons.cli.{DefaultParser, HelpFormatter, Options, Option as CliOption}
+import org.apache.commons.cli.{DefaultParser, HelpFormatter, MissingOptionException, Options, Option as CliOption}
 
+import java.io.File
 import java.net.Socket
 import java.security.PrivateKey
 import java.security.cert.X509Certificate
@@ -22,15 +23,15 @@ object ReplClient {
       .desc("use plain TCP").build
 
     val cacert: CliOption = CliOption.builder.longOpt("cacert").hasArg
-      .converter(PkiUtils.loadPemCert)
+      .converter(file => PkiUtils.loadPemCert(new File(file)))
       .desc("path to CA certificate PEM file").build
 
     val cert: CliOption = CliOption.builder.longOpt("cert").hasArg
-      .converter(PkiUtils.loadPemCert)
+      .converter(file => PkiUtils.loadPemCert(new File(file)))
       .desc("path to client certificate PEM file").build
 
     val key: CliOption = CliOption.builder.longOpt("key").hasArg
-      .converter(PkiUtils.loadPemKey)
+      .converter(file => PkiUtils.loadPemKey(new File(file)))
       .desc("path to client private key PEM file").build
 
     val help: CliOption = CliOption.builder.longOpt("help")
@@ -60,12 +61,22 @@ object ReplClient {
       val socket =
         if (noTls) new Socket(host, port)
         else {
-          val cacert = cmdLine.getParsedOptionValue[X509Certificate](Options.cacert)
+          val cacert = cmdLine.getParsedOptionValue[X509Certificate](Options.cacert,
+            () => throw new MissingOptionException("either --no-tls or --cacert must be specified"))
+
           val cert = cmdLine.getParsedOptionValue[X509Certificate](Options.cert)
           val key = cmdLine.getParsedOptionValue[PrivateKey](Options.key)
+
+          val certKeyPairs = (cert, key) match {
+            case (null, null) => Map.empty
+            case (null, _) => throw new MissingOptionException("--cert must be specified along --key")
+            case (_, null) => throw new MissingOptionException("--key must be specified along --cert")
+            case _ => Map("client" -> (cert, key))
+          }
+
           val sslContext = PkiUtils.sslContext(
-            PkiUtils.keyManagers(if (cert != null && key != null) Map("key" -> (cert, key)) else Map.empty),
-            PkiUtils.trustManagers(if (cacert != null) Map("cacert" -> cacert) else Map.empty),
+            PkiUtils.keyManagers(certKeyPairs),
+            PkiUtils.trustManagers(Map("ca" -> cacert)),
           )
           sslContext.getSocketFactory.createSocket(host, port)
         }
