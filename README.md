@@ -105,8 +105,9 @@ Then, run the client to connect to the server:
 and you should be able to see a fully-featured Scala REPL, e.g.
 
 ```shell
-Welcome to Debug Shell, based on Scala 3.4.2 (21.0.1, Java OpenJDK 64-Bit Server VM).
+Welcome to Scadesh (Scala Debug Shell), based on Scala 3.4.2 (Java 21.0.1, OpenJDK 64-Bit Server VM).
 Type in expressions for evaluation. Or try :help.
+
 val $ext: com.github.ghik.scadesh.server.utils.ShellExtensions = com.github.ghik.scadesh.server.utils.ShellExtensions@46a00624
 
 scala>
