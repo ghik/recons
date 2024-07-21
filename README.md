@@ -8,17 +8,26 @@ giving you almost unlimited access to all the guts and internals of your running
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
+- [Features](#features)
 - [Supported Scala versions](#supported-scala-versions)
 - [Quickstart](#quickstart)
-  - [Determining the classpath](#determining-the-classpath)
-  - [Launching the server](#launching-the-server)
-  - [Connecting to the server](#connecting-to-the-server)
+    - [Determining the classpath](#determining-the-classpath)
+    - [Launching the server](#launching-the-server)
+    - [Connecting to the server](#connecting-to-the-server)
 - [Using standard input and output](#using-standard-input-and-output)
 - [Security](#security)
 - [Troubleshooting utilities](#troubleshooting-utilities)
 - [Customization](#customization)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Features
+
+* fully-featured Scala console, e.g. with syntax highlighting and tab completion
+* support for Scala 2 and 3
+* troubleshooting utilities and customizations
+* pre-bundled client packages
+* secure communication with TLS
 
 ## Supported Scala versions
 
