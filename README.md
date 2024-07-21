@@ -23,7 +23,7 @@ giving you almost unlimited access to all the guts and internals of your running
 
 ## Features
 
-* fully-featured Scala console, e.g. with syntax highlighting and tab completion
+* fully-featured Scala console, i.e. with syntax highlighting, tab completion, etc.
 * support for Scala 2 and 3
 * troubleshooting utilities and customizations
 * pre-bundled client packages
