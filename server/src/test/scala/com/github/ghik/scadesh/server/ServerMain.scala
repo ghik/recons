@@ -33,13 +33,16 @@ object ServerMain {
     val serverCert = PkiUtils.loadPemCert("/Users/rjghik/kubenet/auth/kubernetes.pem")
     val serverKey = PkiUtils.loadPemKey("/Users/rjghik/kubenet/auth/kubernetes-key.pem")
     val sslContext = PkiUtils.sslContext(
-      PkiUtils.keyManagersForSingleCert(serverCert, serverKey),
-      PkiUtils.trustManagersForSingleCert(caCert),
+      PkiUtils.keyManagers(Map("server" -> (serverCert, serverKey))),
+      PkiUtils.trustManagers(Map("cacert" -> caCert)),
     )
+
+    val sslParams = new SSLParameters
+    sslParams.setNeedClientAuth(true)
 
     new ReplServer(
       classpath,
-      tlsConfig = Some(TlsConfig(sslContext)),
+      tlsConfig = Some(TlsConfig(sslContext, Some(sslParams))),
       replConfig = ReplConfig(bindings = bindings, initCode = initCode),
     ).run()
   }

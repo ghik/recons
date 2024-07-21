@@ -33,20 +33,24 @@ object PkiUtils {
     new JcaPEMKeyConverter().getPrivateKey(privateKey)
   }
 
-  def keyManagersForSingleCert(cert: X509Certificate, key: PrivateKey): Array[KeyManager] = {
+  def keyManagers(keys: Map[String, (X509Certificate, PrivateKey)]): Array[KeyManager] = {
     val kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm)
     val ks = KeyStore.getInstance(KeyStore.getDefaultType)
     ks.load(null, null)
-    ks.setKeyEntry("key", key, null, Array(cert))
+    keys.foreach { case (alias, (cert, key)) =>
+      ks.setKeyEntry(alias, key, null, Array(cert))
+    }
     kmf.init(ks, null)
     kmf.getKeyManagers
   }
 
-  def trustManagersForSingleCert(cert: X509Certificate): Array[TrustManager] = {
+  def trustManagers(certs: Map[String, X509Certificate]): Array[TrustManager] = {
     val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm)
     val ks = KeyStore.getInstance(KeyStore.getDefaultType)
     ks.load(null, null)
-    ks.setCertificateEntry("cert", cert)
+    certs.foreach { case (alias, cert) =>
+      ks.setCertificateEntry(alias, cert)
+    }
     tmf.init(ks)
     tmf.getTrustManagers
   }

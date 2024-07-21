@@ -57,8 +57,8 @@ object ReplClient {
         val cert = cmdLine.getParsedOptionValue[X509Certificate](Options.cert)
         val key = cmdLine.getParsedOptionValue[PrivateKey](Options.key)
         val sslContext = PkiUtils.sslContext(
-          if (cert != null && key != null) PkiUtils.keyManagersForSingleCert(cert, key) else null,
-          if (cert != null) PkiUtils.trustManagersForSingleCert(cacert) else null,
+          PkiUtils.keyManagers(if (cert != null && key != null) Map("key" -> (cert, key)) else Map.empty),
+          PkiUtils.trustManagers(if (cacert != null) Map("cacert" -> cacert) else Map.empty),
         )
         sslContext.getSocketFactory.createSocket(host, port)
       }
