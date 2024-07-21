@@ -110,7 +110,7 @@ Type in expressions for evaluation. Or try :help.
 
 val $ext: com.github.ghik.scadesh.server.utils.ShellExtensions = com.github.ghik.scadesh.server.utils.ShellExtensions@46a00624
 
-scala>
+scadesh>
 ```
 
 > [!NOTE]
