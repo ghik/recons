@@ -36,6 +36,11 @@ compatibility guarantees. As a result, Scadesh must be cross-built for every min
 The currently supported versions are 2.13.14+ and 3.4.2+ (unless a version is very fresh and
 Scadesh hasn't been built for it yet).
 
+Because the implementation of Scadesh needs to copy some code from the compiler, and use some
+private APIs via runtime reflection, there's a risk that it may not work with future Scala
+versions or require more significant changes to keep up with the compiler. Hopefully, it may
+be possible to propose some refactors to the compiler itself to improve the situation.
+
 ## Quickstart
 
 To embed a REPL server into your application, add the following dependency to your `build.sbt`:
