@@ -1,2 +1,2 @@
-inThisBuild(Scadesh.buildSettings)
-lazy val root = Scadesh.root
+inThisBuild(ReCon.buildSettings)
+lazy val root = ReCon.root

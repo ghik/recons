@@ -1,7 +1,7 @@
-package com.github.ghik.scadesh
+package com.github.ghik.recon
 package client
 
-import com.github.ghik.scadesh.core.{CompilerCommand, ParseResult, TerminalCommand}
+import com.github.ghik.recon.core.{CompilerCommand, ParseResult, TerminalCommand}
 import org.jline.builtins.InputRC
 import org.jline.reader._
 import org.jline.reader.impl.history.DefaultHistory

@@ -1,8 +1,8 @@
-package com.github.ghik.scadesh
+package com.github.ghik.recon
 package server
 
-import com.github.ghik.scadesh.core.TerminalCommand
-import com.github.ghik.scadesh.server.utils.ShellExtensions
+import com.github.ghik.recon.core.TerminalCommand
+import com.github.ghik.recon.server.utils.ShellExtensions
 import org.jline.reader.*
 
 import scala.tools.nsc.interpreter.shell
