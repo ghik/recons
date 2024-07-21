@@ -42,7 +42,7 @@ object ReplConfig {
   final val DefaultWelcome = {
     import Environment.*
 
-    s"""Welcome to ReCon (Scala Debug Shell), based on Scala $ScalaVersion (Java $JavaVersion, $JavaVmName).
+    s"""Welcome to ReCon, based on Scala $ScalaVersion (Java $JavaVersion, $JavaVmName).
        |Type in expressions for evaluation. Or try :help.
        |""".stripMargin
   }

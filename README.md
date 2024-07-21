@@ -11,9 +11,9 @@ giving you almost unlimited access to all the guts and internals of your running
 - [Features](#features)
 - [Supported Scala versions](#supported-scala-versions)
 - [Quickstart](#quickstart)
-  - [Determining the classpath](#determining-the-classpath)
-  - [Launching the server](#launching-the-server)
-  - [Connecting to the server](#connecting-to-the-server)
+    - [Determining the classpath](#determining-the-classpath)
+    - [Launching the server](#launching-the-server)
+    - [Connecting to the server](#connecting-to-the-server)
 - [Using standard input and output](#using-standard-input-and-output)
 - [Security](#security)
 - [Troubleshooting utilities](#troubleshooting-utilities)
@@ -23,7 +23,7 @@ giving you almost unlimited access to all the guts and internals of your running
 
 ## Features
 
-* fully-featured Scala console, i.e. with syntax highlighting, tab completion, etc.
+* remote, fully-featured Scala console, i.e. with syntax highlighting, tab completion, etc.
 * support for Scala 2 and 3
 * troubleshooting utilities and customizations
 * pre-bundled client packages
@@ -36,14 +36,14 @@ compatibility guarantees. As a result, ReCon must be cross-built for every minor
 The currently supported versions are 2.13.14+ and 3.4.2+ (unless a version is very fresh and
 ReCon hasn't been built for it yet).
 
-Because the implementation of ReCon needs to copy some code from the compiler, and use some
+Because the implementation of ReCon copies some code from the compiler, and uses some
 private APIs via runtime reflection, there's a risk that it may not work with future Scala
 versions or require more significant changes to keep up with the compiler. Hopefully, it may
 be possible to propose some refactors to the compiler itself to improve the situation.
 
 ## Quickstart
 
-To embed a REPL server into your application, add the following dependency to your `build.sbt`:
+Add the following dependency to your `build.sbt`:
 
 ```scala
 libraryDependencies +=
@@ -105,7 +105,7 @@ Then, run the client to connect to the server:
 and you should be able to see a fully-featured Scala REPL, e.g.
 
 ```shell
-Welcome to ReCon (Scala Debug Shell), based on Scala 3.4.2 (Java 21.0.1, OpenJDK 64-Bit Server VM).
+Welcome to ReCon, based on Scala 3.4.2 (Java 21.0.1, OpenJDK 64-Bit Server VM).
 Type in expressions for evaluation. Or try :help.
 
 val $ext: com.github.ghik.recon.server.utils.ShellExtensions = com.github.ghik.recon.server.utils.ShellExtensions@46a00624
@@ -119,12 +119,14 @@ recon>
 ## Using standard input and output
 
 The REPL runs in the server JVM process, which is a different process than the client.
-This means that the standard input and output of the REPL are not connected to the client.
-If you invoke `Predef.println` or similar, you will not see the output in the console.
+This means that the standard input and output of the REPL are not connected to the client,
+like they would in a regular, local Scala REPL.
+If you invoke `scala.Predef.println` or similar functions in the remote REPL,
+you will not see the output in your terminal.
 
-In order to work around this to some extent, ReCon overrides `println` and `print` methods
-to use a custom output stream, connected to the client. However, remember that these overrides
-apply only to code written and compiled directly in the REPL.
+In order to work around this to some extent, ReCon shadows `println` and `print` methods
+with ones that use a custom output stream, connected to the client. However, they work only
+in code written and compiled directly in the REPL.
 
 You can also use `out` (a `PrintStream`) to grab direct access to this custom output stream,
 pass it to other functions, etc.
@@ -146,7 +148,7 @@ You can also secure client-server communication with TLS:
 
 * [`ReplServer`](./server/src/main/scala/com/github/ghik/recon/server/ReplServer.scala)
   accepts a [`TlsConfig`](./server/src/main/scala/com/github/ghik/recon/server/TlsConfig.scala) parameter,
-  which allows you to configure a complete 
+  which allows you to configure a complete
   [`SSLContext`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/javax/net/ssl/SSLContext.html)
   and [`SSLParameters`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/javax/net/ssl/SSLParameters.html)
   for the server.
