@@ -1,4 +1,4 @@
-# Scadesh - Scala Debug Shell
+# Scadesh - an embeddable remote Scala Debug Shell
 
 Scadesh (Scala Debug Shell) allows you to embed a Scala REPL server into your application,
 and connect to it from outside. This is mostly useful as an advanced troubleshooting utility,
