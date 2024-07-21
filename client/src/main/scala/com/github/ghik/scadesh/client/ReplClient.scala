@@ -67,7 +67,7 @@ object ReplClient {
           val cert = cmdLine.getParsedOptionValue[X509Certificate](Options.cert)
           val key = cmdLine.getParsedOptionValue[PrivateKey](Options.key)
 
-          val certKeyPairs = (cert, key) match {
+          val certKeyPairs: Map[String, (X509Certificate, PrivateKey)] = (cert, key) match {
             case (null, null) => Map.empty
             case (null, _) => throw new MissingOptionException("--cert must be specified along --key")
             case (_, null) => throw new MissingOptionException("--key must be specified along --cert")
