@@ -47,7 +47,7 @@ Add the following dependency to your `build.sbt`:
 
 ```scala
 libraryDependencies +=
-  "com.github.ghik.recons" % "recons-server" % VERSION cross CrossVersion.full
+  "com.github.ghik" % "recons-server" % VERSION cross CrossVersion.full
 ```
 
 ### Determining the classpath
