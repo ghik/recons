@@ -54,7 +54,7 @@ object Recons extends ProjectGroup("recons") {
   override def commonSettings: Seq[Def.Setting[?]] = Seq(
     crossVersion := CrossVersion.full,
 
-    organization := "com.github.ghik",
+    organization := "com.github.ghik.recons",
     ideBasePackages := Seq("com.github.ghik.recons"),
     Compile / doc / sources := Nil,
 
