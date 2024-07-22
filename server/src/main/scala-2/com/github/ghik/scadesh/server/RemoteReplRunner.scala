@@ -1,8 +1,8 @@
-package com.github.ghik.recon
+package com.github.ghik.recons
 package server
 
-import com.github.ghik.recon.core.{CompilerCommand, CompleteResult, ParseResult}
-import com.github.ghik.recon.server.utils.ShellExtensions
+import com.github.ghik.recons.core.{CompilerCommand, CompleteResult, ParseResult}
+import com.github.ghik.recons.server.utils.ShellExtensions
 import org.jline.reader.{EOFError, SyntaxError}
 
 import java.io.PrintWriter

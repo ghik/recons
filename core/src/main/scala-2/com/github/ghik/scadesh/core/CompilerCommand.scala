@@ -1,4 +1,4 @@
-package com.github.ghik.recon
+package com.github.ghik.recons
 package core
 
 import org.jline.reader.Parser.ParseContext

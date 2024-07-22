@@ -1,4 +1,4 @@
-package com.github.ghik.recon
+package com.github.ghik.recons
 package core
 
 sealed abstract class TerminalCommand[T: Encoder : Decoder] extends Command[T]

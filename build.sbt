@@ -1,2 +1,2 @@
-inThisBuild(ReCon.buildSettings)
-lazy val root = ReCon.root
+inThisBuild(Recons.buildSettings)
+lazy val root = Recons.root

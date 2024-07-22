@@ -1,7 +1,7 @@
-package com.github.ghik.recon
+package com.github.ghik.recons
 package client
 
-import com.github.ghik.recon.core.{CompilerCommand, ParseResult, TerminalCommand}
+import com.github.ghik.recons.core.{CompilerCommand, ParseResult, TerminalCommand}
 import org.jline.builtins.InputRC
 import org.jline.reader._
 import org.jline.reader.impl.history.DefaultHistory
