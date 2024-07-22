@@ -25,7 +25,7 @@ object Recons extends ProjectGroup("recons") {
     ))),
 
     githubWorkflowTargetTags ++= Seq("v*"),
-    githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17")),
+    githubWorkflowJavaVersions := Seq("11", "17", "21").map(JavaSpec.temurin),
     githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v"))),
 
     githubWorkflowPublish := Seq(
